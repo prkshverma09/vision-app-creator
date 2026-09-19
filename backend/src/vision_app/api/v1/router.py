@@ -193,10 +193,10 @@ def _error_response(
     return JSONResponse(status_code=status_code, content=envelope.model_dump(mode="json"))
 
 
-def _app_summary(app: VisionApp) -> dict[str, Any]:
+def _app_summary(app: VisionApp, spec: AppSpec | None = None) -> dict[str, Any]:
     return {
         "id": app.id.root,
-        "name": app.title,
+        "name": spec.title if spec is not None else app.title,
     }
 
 
@@ -351,6 +351,16 @@ def create_v1_router(deps: V1Dependencies) -> APIRouter:
         except Exception as exc:
             raise IdentityError(str(exc)) from exc
 
+    async def _app_spec(app: VisionApp, principal: Principal) -> AppSpec | None:
+        version_id = app.published_version_id or app.draft_version_id
+        if version_id is None:
+            return None
+        try:
+            version = await deps.version_service.read(principal, version_id.root)
+        except AppNotFound:
+            return None
+        return version.spec
+
     async def _app_detail(app_id: str, principal: Principal) -> dict[str, Any]:
         workspace = _workspace(principal)
         app = await deps.app_service.read(workspace, app_id)
@@ -362,17 +372,9 @@ def create_v1_router(deps: V1Dependencies) -> APIRouter:
                 source = _source_body(asset)
             except Exception:
                 source = None
-        spec = None
-        version_id = app.published_version_id or app.draft_version_id
-        if version_id is not None:
-            try:
-                version = await deps.version_service.read(principal, version_id.root)
-                spec = version.spec
-            except Exception:
-                spec = None
+        spec = await _app_spec(app, principal)
         return {
-            "id": app.id.root,
-            "name": app.title,
+            **_app_summary(app, spec),
             "spec": spec.model_dump(mode="json") if spec else None,
             "source": source,
             "calibration_id": deps.app_calibrations.get(app_id),
@@ -389,7 +391,7 @@ def create_v1_router(deps: V1Dependencies) -> APIRouter:
     async def list_apps(principal: Principal = Depends(_require_principal)) -> Any:
         workspace = _workspace(principal)
         apps = await deps.app_service.list(workspace)
-        return {"apps": [_app_summary(a) for a in apps]}
+        return {"apps": [_app_summary(a, await _app_spec(a, principal)) for a in apps]}
 
     @router.post("/apps", status_code=201)
     async def create_app(

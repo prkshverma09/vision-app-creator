@@ -18,6 +18,36 @@ SPEC = {
 }
 
 
+@pytest.mark.asyncio
+async def test_saved_apps_display_version_titles_including_after_restart(tmp_path: Path):
+    app = create_app("local", {"data_dir": tmp_path})
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as client:
+        first = (await client.post("/v1/apps", json={})).json()
+        second = (await client.post("/v1/apps", json={})).json()
+        assert first["name"] == second["name"] == "Untitled app"
+        assert (await client.get("/v1/apps")).json()["apps"] == [first, second]
+        for saved, title in [(first, "Smoke detector"), (second, "Moving object detector")]:
+            response = await client.post(
+                f"/v1/apps/{saved['id']}/versions", json={"spec": {**SPEC, "title": title}},
+            )
+            assert response.status_code == 200, response.text
+            assert response.json()["name"] == title
+        response = await client.post(
+            f"/v1/apps/{first['id']}/versions", json={"spec": {**SPEC, "title": "Fire watcher"}},
+        )
+        assert response.status_code == 200
+
+    restarted = create_app("local", {"data_dir": tmp_path})
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=restarted), base_url="http://test") as client:
+        summaries = (await client.get("/v1/apps")).json()["apps"]
+        assert {item["id"]: item["name"] for item in summaries} == {
+            first["id"]: "Fire watcher", second["id"]: "Moving object detector",
+        }
+        for summary in summaries:
+            detail = (await client.get(f"/v1/apps/{summary['id']}")).json()
+            assert summary["name"] == detail["name"] == detail["spec"]["title"]
+
+
 def test_provider_configuration_error_is_not_reported_as_unsupported_capability():
     from vision_app.api.v1.router import _build_turn_response
     from vision_app.contracts.models import BuildTurn
