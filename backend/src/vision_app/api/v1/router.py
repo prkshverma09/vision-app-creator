@@ -694,6 +694,8 @@ def create_v1_router(deps: V1Dependencies) -> APIRouter:
         detail = {
             "id": record.id, "app_id": app_id, "status": _run_status(job),
             "version_id": record.version_id, "asset_id": record.asset_id,
+            "spec": version.spec.model_dump(mode="json"),
+            "analysis_complete": job.state == JobState.COMPLETED,
             "calibration_id": record.calibration_id,
             "is_seed_run": record.asset_id == deps.app_seed_assets.get(app_id),
             "analysis_mode": getattr(record, "analysis_mode", deps.analysis_mode),

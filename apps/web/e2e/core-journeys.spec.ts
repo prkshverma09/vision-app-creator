@@ -45,18 +45,13 @@ async function calibrate(page: Page) {
   await expect(page.getByText('Source ready and calibration confirmed.')).toBeVisible()
 }
 
-async function runAndSelectEvent(page: Page) {
+async function runApp(page: Page) {
   await calibrate(page)
   await page.getByRole('button', { name: 'Run app' }).click()
   await expect(page).toHaveURL(/#\/app\/app-e2e\/use$/)
   await page.getByRole('button', { name: 'Run app' }).click()
-  await expect(page.getByText('Run succeeded', { exact: true })).toBeVisible()
-  await expect(page.getByRole('note')).toContainText('100% of fixture processed')
-  const card = page.getByTestId('event-card-event-e2e')
-  await expect(card).toContainText('supported')
-  await card.click()
-  await expect(page.getByRole('img', { name: 'evidence', exact: true })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Seek to evidence center' })).toBeVisible()
+  await expect(page.getByLabel('Run result')).toHaveAttribute('data-status', 'succeeded')
+  await expect(page.getByLabel('Run result')).toHaveText('Demo only: this video has not been analyzed.')
 }
 
 test('Journey 1: legacy prompt-first creation still reaches upload', async ({ page }) => {
@@ -77,20 +72,43 @@ test('Journey 3: draw stop-line and ROI, confirm calibration, and publish the ve
   await expect(page.getByRole('region', { name: 'Reusable app definition' })).toContainText('Red light crossing')
 })
 
-test('Journey 4: start run, observe progress, and inspect event evidence', async ({ page }) => {
-  await runAndSelectEvent(page)
-  await expect(page.getByAltText('evidence thumbnail')).toBeVisible()
-  await verifyAllMedia(page, { media: [] }, 'run-evidence', true)
+test('Journey 4: run the app and view a plain result with playable source video', async ({ page }) => {
+  await runApp(page)
+  await verifyAllMedia(page, { media: [] }, 'run-source', true)
 })
 
-test('Journey 5: run page shows the finding result and evidence without review UI', async ({ page }) => {
-  await runAndSelectEvent(page)
-  await expect(page.getByLabel('Run result')).toContainText('finding')
-  const card = page.getByTestId('event-card-event-e2e')
-  await expect(card).toContainText('event-e2e')
-  await expect(card).toContainText('supported')
+test('Journey 5: run result has no banner, timeline, event or evidence panels', async ({ page }) => {
+  await runApp(page)
+  await expect(page.locator('p[aria-label="Run result"]')).toBeVisible()
+  await expect(page.getByLabel('Findings timeline')).toHaveCount(0)
+  await expect(page.getByLabel('Detected events')).toHaveCount(0)
+  await expect(page.getByLabel('Event detail')).toHaveCount(0)
+  await expect(page.locator('[data-testid^="event-card-"]')).toHaveCount(0)
   await expect(page.getByRole('button', { name: /approve|reject|mark unknown/i })).toHaveCount(0)
 })
+
+for (const scenario of [
+  { name: 'positive', status: 'succeeded', complete: true, decision: 'candidate', text: 'Possible match: A white car crossed the yellow line while the light was red.' },
+  { name: 'negative', status: 'succeeded', complete: true, decision: null, text: 'No matching activity was detected in this video.' },
+  { name: 'uncertain', status: 'succeeded', complete: true, decision: 'inconclusive', text: 'The video is inconclusive — the app could not determine whether the activity occurred.' },
+  { name: 'partial', status: 'succeeded', complete: false, decision: null, text: 'Only part of the video was analyzed — no complete result is available.' },
+  { name: 'failed', status: 'failed', complete: false, decision: null, text: 'The video could not be analyzed — please try again.' },
+]) {
+  test(`Mocked Gemini ${scenario.name} result is a single human-readable sentence`, async ({ page }) => {
+    await page.route('**/v1/runs/run-result', route => route.fulfill({ json: {
+      run: { id: 'run-result', app_id: 'app-result', analysis_mode: 'gemini', status: scenario.status, analysis_complete: scenario.complete },
+      events: scenario.decision ? [{
+        id: 'event-result', machine_decision: scenario.decision,
+        facts: { description: 'A white car crossed the yellow line while the light was red.' },
+      }] : [],
+    } }))
+    await page.goto('/#/app/app-result/run/run-result')
+    await expect(page.getByLabel('Run result')).toHaveText(scenario.text)
+    await expect(page.getByLabel('Detected events')).toHaveCount(0)
+    await expect(page.getByLabel('Event detail')).toHaveCount(0)
+    await expect(page.getByLabel('Findings timeline')).toHaveCount(0)
+  })
+}
 
 test('Journey 6: unsupported chat request is explained honestly', async ({ page }) => {
   await newWorkspace(page)

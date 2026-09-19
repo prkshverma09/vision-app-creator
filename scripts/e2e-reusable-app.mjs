@@ -112,14 +112,10 @@ export async function runReusableAcceptance(page, options = {}) {
     }
   }
   const inspectResults = async (runId, label) => {
-    await expect(page.getByRole('status').filter({ hasText: /^Run (succeeded|failed|cancelled|partial)$/ })).toBeVisible({ timeout: 180000 })
-    await expect(page.getByRole('status').filter({ hasText: /^Run / })).toHaveText('Run succeeded')
+    await expect(page.getByLabel('Run result')).toHaveAttribute('data-status', /^(succeeded|failed|cancelled)$/, { timeout: 180000 })
+    await expect(page.getByLabel('Run result')).toHaveAttribute('data-status', 'succeeded')
     await verifyAllMedia(page, report, `${label}-results`, true)
-    const cards = page.locator('[data-testid^="event-card-"]')
-    for (let i = 0; i < await cards.count(); i++) {
-      await cards.nth(i).click()
-      await verifyAllMedia(page, report, `${label}-event-${i}`, true)
-    }
+    await expect(page.locator('[data-testid^="event-card-"]')).toHaveCount(0)
     await screenshot(`${label}-results`)
     await Promise.all([...pending])
     const result = report.responses.filter(item => item.path === `/v1/runs/${runId}` && terminalStates.includes(item.body.run?.status)).at(-1)?.body

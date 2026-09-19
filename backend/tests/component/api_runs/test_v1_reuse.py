@@ -82,6 +82,29 @@ async def test_semantic_reuse_and_lineage(tmp_path: Path):
 
 
 @pytest.mark.asyncio
+async def test_run_result_context_keeps_the_definition_used_for_that_run(tmp_path: Path):
+    app = create_app("local", {"data_dir": tmp_path})
+    await seed_asset(app, "seed")
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as client:
+        app_id = (await client.post("/v1/apps", json={"name": "Safety"})).json()["id"]
+        await client.post(f"/v1/apps/{app_id}/source", json={"asset_id": "seed"})
+        original = (await client.post(f"/v1/apps/{app_id}/versions", json={"spec": SPEC})).json()
+        started = await client.post(f"/v1/apps/{app_id}/runs", json={})
+        assert started.status_code == 202
+        run_id = started.json()["run_id"]
+        replacement = {**SPEC, "title": "New definition", "objective": "Find water"}
+        accepted = await client.post(f"/v1/apps/{app_id}/versions", json={"spec": replacement})
+        assert accepted.status_code == 200
+        await asyncio.sleep(0.02)
+        detail = (await client.get(f"/v1/runs/{run_id}")).json()["run"]
+        assert detail["spec"] == original["spec"]
+        assert detail["version_id"] == original["published_version_id"]
+        assert detail["spec"]["title"] != accepted.json()["spec"]["title"]
+        assert detail["status"] == "failed"
+        assert detail["analysis_complete"] is False
+
+
+@pytest.mark.asyncio
 async def test_live_configuration_and_consent(tmp_path: Path):
     app = create_app("live", {"data_dir": tmp_path})
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as client:
@@ -252,6 +275,8 @@ async def test_live_compiles_seed_and_reuses_version_for_independent_videos(tmp_
                     break
                 await asyncio.sleep(0.02)
             assert result["run"]["status"] == "succeeded", result
+            assert result["run"]["analysis_complete"] is True
+            assert result["run"]["spec"] == accepted["spec"]
             assert result["run"]["version_id"] == version
             assert result["run"]["analysis_mode"] == "gemini"
             assert len(result["events"]) == expected_events
