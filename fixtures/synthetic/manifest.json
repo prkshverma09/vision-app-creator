@@ -1,0 +1,27 @@
+{
+  "ffmpeg_options": "rawvideo rgb24 input; libx264 preset=ultrafast crf=23 pix_fmt=yuv420p threads=1 metadata stripped",
+  "fixtures": {
+    "empty_scene": {
+      "annotation_sha256": "07d2ec98870ec45bcee7ff7df19e39d1cd583f8c5344a5b28fc9f57826087b1e",
+      "video_sha256": "ee876c507f3ca9003b95902e811c0218d5ff5d0f9beaae5f80a906c8d0c1e3ca"
+    },
+    "green_light_crossing": {
+      "annotation_sha256": "96659755817efec3876e96bb642112ae2bbc710507ac466eeb976be732bb26ea",
+      "video_sha256": "ae0b1414e2ff3723930e5f2e9423380d9c724b9d008471703f90d87b22feae15"
+    },
+    "moving_dot": {
+      "annotation_sha256": "90019788fbe26db1df851f20300b10bf33d0969fea7d142d9e79dc9f56b1e272",
+      "video_sha256": "e8e35eec95ad44d33f601049c5350130e7152bed1b54b76f638b8d1c15000a25"
+    },
+    "red_green_light": {
+      "annotation_sha256": "e50f7c231fec96566a57d1a296dadf2a9298a04185b6571ea117ae73c8dca2da",
+      "video_sha256": "62ca5e26d4c301f74252609895020df71413a40a507e0f1d128ac40b239e4c85"
+    },
+    "red_light_violation": {
+      "annotation_sha256": "5cd2c56abe2815f6c4a08274e877f36d7d2337c419253348fd84d34588c9ace8",
+      "video_sha256": "e259ed6a59b5762b30bcd2a5c4d0c15d8e01c47d7bbeca9bd220fe19c4f32a80"
+    }
+  },
+  "generator": "generate_synthetic.py",
+  "seed": 20260918
+}

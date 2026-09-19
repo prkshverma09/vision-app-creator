@@ -1,0 +1,4 @@
+# Optional test-only dependencies added for C01 (geometry component).
+# These are intentionally kept out of the root manifests pending coordinator review.
+# Install with: uv pip install -r backend/requirements-c01.txt
+hypothesis==6.168.0

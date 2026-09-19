@@ -1,0 +1,865 @@
+{
+  "expected_events": [],
+  "fixture_id": "moving_dot",
+  "frames": [
+    {
+      "boxes": [
+        {
+          "box_px": [
+            20,
+            110,
+            32,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 0,
+      "signal_state": "unknown",
+      "source_time_ms": 0
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            25,
+            110,
+            37,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 1,
+      "signal_state": "unknown",
+      "source_time_ms": 100
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            30,
+            110,
+            42,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 2,
+      "signal_state": "unknown",
+      "source_time_ms": 200
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            35,
+            110,
+            47,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 3,
+      "signal_state": "unknown",
+      "source_time_ms": 300
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            40,
+            110,
+            52,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 4,
+      "signal_state": "unknown",
+      "source_time_ms": 400
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            45,
+            110,
+            57,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 5,
+      "signal_state": "unknown",
+      "source_time_ms": 500
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            50,
+            110,
+            62,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 6,
+      "signal_state": "unknown",
+      "source_time_ms": 600
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            55,
+            110,
+            67,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 7,
+      "signal_state": "unknown",
+      "source_time_ms": 700
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            60,
+            110,
+            72,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 8,
+      "signal_state": "unknown",
+      "source_time_ms": 800
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            65,
+            110,
+            77,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 9,
+      "signal_state": "unknown",
+      "source_time_ms": 900
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            70,
+            110,
+            82,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 10,
+      "signal_state": "unknown",
+      "source_time_ms": 1000
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            75,
+            110,
+            87,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 11,
+      "signal_state": "unknown",
+      "source_time_ms": 1100
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            80,
+            110,
+            92,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 12,
+      "signal_state": "unknown",
+      "source_time_ms": 1200
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            85,
+            110,
+            97,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 13,
+      "signal_state": "unknown",
+      "source_time_ms": 1300
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            90,
+            110,
+            102,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 14,
+      "signal_state": "unknown",
+      "source_time_ms": 1400
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            95,
+            110,
+            107,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 15,
+      "signal_state": "unknown",
+      "source_time_ms": 1500
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            100,
+            110,
+            112,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 16,
+      "signal_state": "unknown",
+      "source_time_ms": 1600
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            105,
+            110,
+            117,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 17,
+      "signal_state": "unknown",
+      "source_time_ms": 1700
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            110,
+            110,
+            122,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 18,
+      "signal_state": "unknown",
+      "source_time_ms": 1800
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            115,
+            110,
+            127,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 19,
+      "signal_state": "unknown",
+      "source_time_ms": 1900
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            120,
+            110,
+            132,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 20,
+      "signal_state": "unknown",
+      "source_time_ms": 2000
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            125,
+            110,
+            137,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 21,
+      "signal_state": "unknown",
+      "source_time_ms": 2100
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            130,
+            110,
+            142,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 22,
+      "signal_state": "unknown",
+      "source_time_ms": 2200
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            135,
+            110,
+            147,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 23,
+      "signal_state": "unknown",
+      "source_time_ms": 2300
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            140,
+            110,
+            152,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 24,
+      "signal_state": "unknown",
+      "source_time_ms": 2400
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            145,
+            110,
+            157,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 25,
+      "signal_state": "unknown",
+      "source_time_ms": 2500
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            150,
+            110,
+            162,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 26,
+      "signal_state": "unknown",
+      "source_time_ms": 2600
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            155,
+            110,
+            167,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 27,
+      "signal_state": "unknown",
+      "source_time_ms": 2700
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            160,
+            110,
+            172,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 28,
+      "signal_state": "unknown",
+      "source_time_ms": 2800
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            165,
+            110,
+            177,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 29,
+      "signal_state": "unknown",
+      "source_time_ms": 2900
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            170,
+            110,
+            182,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 30,
+      "signal_state": "unknown",
+      "source_time_ms": 3000
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            175,
+            110,
+            187,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 31,
+      "signal_state": "unknown",
+      "source_time_ms": 3100
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            180,
+            110,
+            192,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 32,
+      "signal_state": "unknown",
+      "source_time_ms": 3200
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            185,
+            110,
+            197,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 33,
+      "signal_state": "unknown",
+      "source_time_ms": 3300
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            190,
+            110,
+            202,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 34,
+      "signal_state": "unknown",
+      "source_time_ms": 3400
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            195,
+            110,
+            207,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 35,
+      "signal_state": "unknown",
+      "source_time_ms": 3500
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            200,
+            110,
+            212,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 36,
+      "signal_state": "unknown",
+      "source_time_ms": 3600
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            205,
+            110,
+            217,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 37,
+      "signal_state": "unknown",
+      "source_time_ms": 3700
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            210,
+            110,
+            222,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 38,
+      "signal_state": "unknown",
+      "source_time_ms": 3800
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            215,
+            110,
+            227,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 39,
+      "signal_state": "unknown",
+      "source_time_ms": 3900
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            220,
+            110,
+            232,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 40,
+      "signal_state": "unknown",
+      "source_time_ms": 4000
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            225,
+            110,
+            237,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 41,
+      "signal_state": "unknown",
+      "source_time_ms": 4100
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            230,
+            110,
+            242,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 42,
+      "signal_state": "unknown",
+      "source_time_ms": 4200
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            235,
+            110,
+            247,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 43,
+      "signal_state": "unknown",
+      "source_time_ms": 4300
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            240,
+            110,
+            252,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 44,
+      "signal_state": "unknown",
+      "source_time_ms": 4400
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            245,
+            110,
+            257,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 45,
+      "signal_state": "unknown",
+      "source_time_ms": 4500
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            250,
+            110,
+            262,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 46,
+      "signal_state": "unknown",
+      "source_time_ms": 4600
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            255,
+            110,
+            267,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 47,
+      "signal_state": "unknown",
+      "source_time_ms": 4700
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            260,
+            110,
+            272,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 48,
+      "signal_state": "unknown",
+      "source_time_ms": 4800
+    },
+    {
+      "boxes": [
+        {
+          "box_px": [
+            265,
+            110,
+            277,
+            122
+          ],
+          "class": "dot",
+          "track_id": "track-1"
+        }
+      ],
+      "frame": 49,
+      "signal_state": "unknown",
+      "source_time_ms": 4900
+    }
+  ],
+  "no_event": true,
+  "seed": 20260918,
+  "video": {
+    "duration_ms": 5000,
+    "fps": 10,
+    "frames": 50,
+    "height": 240,
+    "width": 320
+  }
+}

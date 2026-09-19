@@ -1,0 +1,10 @@
+{
+  "id": "replace-rights-id",
+  "approved_by": "REPLACE_AUTHORIZED_HUMAN_APPROVER",
+  "approved_at": "REPLACE_ISO_8601",
+  "permitted_uses": ["development", "evaluation"],
+  "redistribution": "prohibited",
+  "source_ids": ["stable-recording-id"],
+  "expires_at": null,
+  "notes": "Do not claim rights that have not been verified by the operator. Do not put secrets here."
+}

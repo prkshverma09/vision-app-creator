@@ -1,0 +1,4 @@
+# Optional B01 persistence dependencies.
+# Install only when targeting Firestore (emulator or cloud).
+google-cloud-firestore==2.19.0
+firebase-admin==6.5.0

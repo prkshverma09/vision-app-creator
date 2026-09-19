@@ -1,0 +1,1 @@
+{"kind":"tracked_rules","schema_version":"1.0","title":"Red crossing","objective":"Flag vehicles crossing during confirmed red","evidence_policy":{"before_ms":3000,"after_ms":3000},"approved_action_refs":[],"limits":{"max_duration_ms":300000,"max_model_calls":100},"rules":[{"rule_id":"rule-red","capability_id":"tracked.red_phase_crossing","object_classes":["car","bus","truck"]}]}

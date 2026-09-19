@@ -1,0 +1,5 @@
+# Optional API dependencies added for A03.
+# Kept out of root manifests pending coordinator approval.
+# Install with: uv pip install -r backend/requirements-a03.txt
+fastapi==0.116.1
+httpx==0.28.1

@@ -1,0 +1,315 @@
+{
+  "expected_events": [],
+  "fixture_id": "red_green_light",
+  "frames": [
+    {
+      "boxes": [],
+      "frame": 0,
+      "signal_state": "green",
+      "source_time_ms": 0
+    },
+    {
+      "boxes": [],
+      "frame": 1,
+      "signal_state": "green",
+      "source_time_ms": 100
+    },
+    {
+      "boxes": [],
+      "frame": 2,
+      "signal_state": "green",
+      "source_time_ms": 200
+    },
+    {
+      "boxes": [],
+      "frame": 3,
+      "signal_state": "green",
+      "source_time_ms": 300
+    },
+    {
+      "boxes": [],
+      "frame": 4,
+      "signal_state": "green",
+      "source_time_ms": 400
+    },
+    {
+      "boxes": [],
+      "frame": 5,
+      "signal_state": "green",
+      "source_time_ms": 500
+    },
+    {
+      "boxes": [],
+      "frame": 6,
+      "signal_state": "green",
+      "source_time_ms": 600
+    },
+    {
+      "boxes": [],
+      "frame": 7,
+      "signal_state": "green",
+      "source_time_ms": 700
+    },
+    {
+      "boxes": [],
+      "frame": 8,
+      "signal_state": "green",
+      "source_time_ms": 800
+    },
+    {
+      "boxes": [],
+      "frame": 9,
+      "signal_state": "green",
+      "source_time_ms": 900
+    },
+    {
+      "boxes": [],
+      "frame": 10,
+      "signal_state": "green",
+      "source_time_ms": 1000
+    },
+    {
+      "boxes": [],
+      "frame": 11,
+      "signal_state": "green",
+      "source_time_ms": 1100
+    },
+    {
+      "boxes": [],
+      "frame": 12,
+      "signal_state": "green",
+      "source_time_ms": 1200
+    },
+    {
+      "boxes": [],
+      "frame": 13,
+      "signal_state": "green",
+      "source_time_ms": 1300
+    },
+    {
+      "boxes": [],
+      "frame": 14,
+      "signal_state": "green",
+      "source_time_ms": 1400
+    },
+    {
+      "boxes": [],
+      "frame": 15,
+      "signal_state": "green",
+      "source_time_ms": 1500
+    },
+    {
+      "boxes": [],
+      "frame": 16,
+      "signal_state": "green",
+      "source_time_ms": 1600
+    },
+    {
+      "boxes": [],
+      "frame": 17,
+      "signal_state": "green",
+      "source_time_ms": 1700
+    },
+    {
+      "boxes": [],
+      "frame": 18,
+      "signal_state": "green",
+      "source_time_ms": 1800
+    },
+    {
+      "boxes": [],
+      "frame": 19,
+      "signal_state": "green",
+      "source_time_ms": 1900
+    },
+    {
+      "boxes": [],
+      "frame": 20,
+      "signal_state": "red",
+      "source_time_ms": 2000
+    },
+    {
+      "boxes": [],
+      "frame": 21,
+      "signal_state": "red",
+      "source_time_ms": 2100
+    },
+    {
+      "boxes": [],
+      "frame": 22,
+      "signal_state": "red",
+      "source_time_ms": 2200
+    },
+    {
+      "boxes": [],
+      "frame": 23,
+      "signal_state": "red",
+      "source_time_ms": 2300
+    },
+    {
+      "boxes": [],
+      "frame": 24,
+      "signal_state": "red",
+      "source_time_ms": 2400
+    },
+    {
+      "boxes": [],
+      "frame": 25,
+      "signal_state": "red",
+      "source_time_ms": 2500
+    },
+    {
+      "boxes": [],
+      "frame": 26,
+      "signal_state": "red",
+      "source_time_ms": 2600
+    },
+    {
+      "boxes": [],
+      "frame": 27,
+      "signal_state": "red",
+      "source_time_ms": 2700
+    },
+    {
+      "boxes": [],
+      "frame": 28,
+      "signal_state": "red",
+      "source_time_ms": 2800
+    },
+    {
+      "boxes": [],
+      "frame": 29,
+      "signal_state": "red",
+      "source_time_ms": 2900
+    },
+    {
+      "boxes": [],
+      "frame": 30,
+      "signal_state": "red",
+      "source_time_ms": 3000
+    },
+    {
+      "boxes": [],
+      "frame": 31,
+      "signal_state": "red",
+      "source_time_ms": 3100
+    },
+    {
+      "boxes": [],
+      "frame": 32,
+      "signal_state": "red",
+      "source_time_ms": 3200
+    },
+    {
+      "boxes": [],
+      "frame": 33,
+      "signal_state": "red",
+      "source_time_ms": 3300
+    },
+    {
+      "boxes": [],
+      "frame": 34,
+      "signal_state": "red",
+      "source_time_ms": 3400
+    },
+    {
+      "boxes": [],
+      "frame": 35,
+      "signal_state": "red",
+      "source_time_ms": 3500
+    },
+    {
+      "boxes": [],
+      "frame": 36,
+      "signal_state": "red",
+      "source_time_ms": 3600
+    },
+    {
+      "boxes": [],
+      "frame": 37,
+      "signal_state": "red",
+      "source_time_ms": 3700
+    },
+    {
+      "boxes": [],
+      "frame": 38,
+      "signal_state": "red",
+      "source_time_ms": 3800
+    },
+    {
+      "boxes": [],
+      "frame": 39,
+      "signal_state": "red",
+      "source_time_ms": 3900
+    },
+    {
+      "boxes": [],
+      "frame": 40,
+      "signal_state": "red",
+      "source_time_ms": 4000
+    },
+    {
+      "boxes": [],
+      "frame": 41,
+      "signal_state": "red",
+      "source_time_ms": 4100
+    },
+    {
+      "boxes": [],
+      "frame": 42,
+      "signal_state": "red",
+      "source_time_ms": 4200
+    },
+    {
+      "boxes": [],
+      "frame": 43,
+      "signal_state": "red",
+      "source_time_ms": 4300
+    },
+    {
+      "boxes": [],
+      "frame": 44,
+      "signal_state": "red",
+      "source_time_ms": 4400
+    },
+    {
+      "boxes": [],
+      "frame": 45,
+      "signal_state": "red",
+      "source_time_ms": 4500
+    },
+    {
+      "boxes": [],
+      "frame": 46,
+      "signal_state": "red",
+      "source_time_ms": 4600
+    },
+    {
+      "boxes": [],
+      "frame": 47,
+      "signal_state": "red",
+      "source_time_ms": 4700
+    },
+    {
+      "boxes": [],
+      "frame": 48,
+      "signal_state": "red",
+      "source_time_ms": 4800
+    },
+    {
+      "boxes": [],
+      "frame": 49,
+      "signal_state": "red",
+      "source_time_ms": 4900
+    }
+  ],
+  "no_event": true,
+  "seed": 20260918,
+  "video": {
+    "duration_ms": 5000,
+    "fps": 10,
+    "frames": 50,
+    "height": 240,
+    "width": 320
+  }
+}

@@ -1,0 +1,4 @@
+# P05 optional provider dependencies. Install only in the target environment/profile.
+# Code must remain importable without these packages (use conditional imports).
+pydantic-ai>=0.0.55
+google-generativeai>=0.8.0

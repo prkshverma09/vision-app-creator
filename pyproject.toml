@@ -1,0 +1,55 @@
+[project]
+name = "vision-app-creator"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.141.1",
+    "httpx>=0.28.1",
+    "pydantic==2.11.7",
+    "uvicorn>=0.53.0",
+]
+
+[project.optional-dependencies]
+vision = ["numpy==2.2.6", "opencv-python-headless==4.12.0.88", "supervision>=0.30.0"]
+cloud = ["google-cloud-storage==3.2.0"]
+evals = ["pydantic-evals==1.0.0"]
+dev = ["pytest==8.4.1", "pytest-asyncio==1.1.0", "mypy==1.17.1", "ruff==0.12.7"]
+
+[tool.uv]
+default-groups = ["dev"]
+
+[dependency-groups]
+dev = ["pytest==8.4.1", "pytest-asyncio==1.1.0", "mypy==1.17.1", "ruff==0.12.7"]
+
+[tool.pytest.ini_options]
+pythonpath = ["backend/src"]
+testpaths = ["backend/tests"]
+addopts = "--strict-markers"
+markers = ["integration: local integration tests", "e2e: browser/end-to-end tests"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["vision_app"]
+mypy_path = "backend/src"
+
+[[tool.mypy.overrides]]
+module = [
+    "pydantic_ai",
+    "pydantic_ai.*",
+    "pydantic_ai.models.gemini",
+    "logfire",
+    "google.cloud",
+    "google.cloud.storage",
+    "google.cloud.firestore",
+    "google.api_core.*",
+    "google.generativeai.*",
+]
+ignore_missing_imports = true
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

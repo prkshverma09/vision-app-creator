@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "frozen_at": "REPLACE_ISO_8601_BEFORE_EVALUATION",
+  "cases": [
+    {
+      "id": "replace-heldout-video-001",
+      "kind": "video",
+      "fixture_type": "real",
+      "split": "heldout",
+      "source_id": "heldout-recording-id",
+      "camera_group": "heldout-camera-id",
+      "provenance": "Describe acquisition without secrets",
+      "rights_record": "replace-rights-id.json",
+      "source_path": "media/authorized-file.mp4",
+      "source_sha256": "REPLACE_WITH_64_HEX_SHA256",
+      "evidence": {
+        "governing_signal_visible": true,
+        "stop_line_visible": true,
+        "approach_lane_visible": true
+      },
+      "truth_intervals": [
+        {"start_ms": 1000, "end_ms": 1200, "uncertainty_ms": 50, "disposition": "unknown"}
+      ],
+      "label_review": {"reviewer": "REPLACE_HUMAN_REVIEWER", "reviewed_at": "REPLACE_ISO_8601"}
+    }
+  ]
+}

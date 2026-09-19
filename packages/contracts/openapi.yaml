@@ -1,0 +1,23 @@
+openapi: 3.1.0
+info: {title: Vision App Creator C0, version: C0}
+security: [{bearerAuth: []}]
+paths:
+  /v1/uploads: {post: {responses: {'202': {description: Upload grant}, '422': {$ref: '#/components/responses/Error'}}}}
+  /v1/uploads/{id}/complete: {post: {responses: {'202': {description: Probe queued}}}}
+  /v1/assets/{id}: {get: {responses: {'200': {description: Asset}}}}
+  /v1/apps: {get: {responses: {'200': {description: Apps}}}, post: {responses: {'201': {description: App}}}}
+  /v1/apps/{id}/messages: {post: {responses: {'202': {description: Build turn}}}}
+  /v1/calibrations/{id}/confirm: {post: {responses: {'200': {description: Calibration}}}}
+  /v1/runs: {post: {responses: {'202': {description: Run}}}}
+  /v1/runs/{id}: {get: {responses: {'200': {description: Run progress}}}}
+  /v1/runs/{id}/events: {get: {responses: {'200': {description: Events}}}}
+  /v1/runs/{id}/updates: {get: {responses: {'200': {description: Updates}}}}
+  /v1/runs/{id}/cancel: {post: {responses: {'202': {description: Cancellation requested}}}}
+  /v1/events/{id}/review: {post: {responses: {'200': {description: Event}}}}
+  /v1/events/{id}/actions/preview: {post: {responses: {'200': {description: Dry-run payload}}}}
+components:
+  securitySchemes: {bearerAuth: {type: http, scheme: bearer}}
+  responses:
+    Error: {description: Typed error, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorEnvelope'}}}}
+  schemas:
+    ErrorEnvelope: {type: object, required: [code, message, request_id, retryable], properties: {code: {type: string}, message: {type: string}, request_id: {type: string}, retryable: {type: boolean}}}

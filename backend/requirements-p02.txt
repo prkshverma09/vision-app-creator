@@ -1,0 +1,8 @@
+# P02 optional runtime dependencies for real RF-DETR inference.
+# These are NOT imported by component tests; they are required only for the
+# live/vision acceptance gate (R01) and must be added to the central lockfile by
+# the coordinator before that gate runs.
+--extra-index-url https://download.pytorch.org/whl/cpu
+rfdetr>=0.1.0
+torch>=2.4.0
+torchvision>=0.19.0

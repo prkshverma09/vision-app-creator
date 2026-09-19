@@ -1,0 +1,3546 @@
+{
+  "AppSpec": {
+    "$defs": {
+      "EvidencePolicy": {
+        "additionalProperties": false,
+        "properties": {
+          "after_ms": {
+            "default": 3000,
+            "minimum": 0,
+            "title": "After Ms",
+            "type": "integer"
+          },
+          "before_ms": {
+            "default": 3000,
+            "minimum": 0,
+            "title": "Before Ms",
+            "type": "integer"
+          }
+        },
+        "title": "EvidencePolicy",
+        "type": "object"
+      },
+      "ExecutionLimits": {
+        "additionalProperties": false,
+        "properties": {
+          "max_duration_ms": {
+            "default": 300000,
+            "exclusiveMinimum": 0,
+            "title": "Max Duration Ms",
+            "type": "integer"
+          },
+          "max_model_calls": {
+            "default": 100,
+            "minimum": 0,
+            "title": "Max Model Calls",
+            "type": "integer"
+          }
+        },
+        "title": "ExecutionLimits",
+        "type": "object"
+      },
+      "ResourceId": {
+        "title": "ResourceId",
+        "type": "string"
+      },
+      "SemanticCondition": {
+        "additionalProperties": false,
+        "properties": {
+          "condition_id": {
+            "$ref": "#/$defs/ResourceId"
+          },
+          "prompt": {
+            "minLength": 1,
+            "title": "Prompt",
+            "type": "string"
+          },
+          "roi_id": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ResourceId"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "condition_id",
+          "prompt"
+        ],
+        "title": "SemanticCondition",
+        "type": "object"
+      },
+      "SemanticWindowsSpec": {
+        "additionalProperties": false,
+        "properties": {
+          "approved_action_refs": {
+            "items": {
+              "$ref": "#/$defs/ResourceId"
+            },
+            "title": "Approved Action Refs",
+            "type": "array"
+          },
+          "conditions": {
+            "items": {
+              "$ref": "#/$defs/SemanticCondition"
+            },
+            "minItems": 1,
+            "title": "Conditions",
+            "type": "array"
+          },
+          "evidence_policy": {
+            "$ref": "#/$defs/EvidencePolicy",
+            "default": {
+              "after_ms": 3000,
+              "before_ms": 3000
+            }
+          },
+          "kind": {
+            "const": "semantic_windows",
+            "title": "Kind",
+            "type": "string"
+          },
+          "limits": {
+            "$ref": "#/$defs/ExecutionLimits",
+            "default": {
+              "max_duration_ms": 300000,
+              "max_model_calls": 100
+            }
+          },
+          "objective": {
+            "minLength": 1,
+            "title": "Objective",
+            "type": "string"
+          },
+          "sample_fps": {
+            "exclusiveMinimum": 0,
+            "maximum": 10,
+            "title": "Sample Fps",
+            "type": "number"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "default": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "stride_ms": {
+            "exclusiveMinimum": 0,
+            "maximum": 30000,
+            "title": "Stride Ms",
+            "type": "integer"
+          },
+          "title": {
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "window_ms": {
+            "exclusiveMinimum": 0,
+            "maximum": 30000,
+            "title": "Window Ms",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "title",
+          "objective",
+          "kind",
+          "conditions",
+          "window_ms",
+          "stride_ms",
+          "sample_fps"
+        ],
+        "title": "SemanticWindowsSpec",
+        "type": "object"
+      },
+      "TrackedRule": {
+        "additionalProperties": false,
+        "properties": {
+          "capability_id": {
+            "enum": [
+              "tracked.line_crossing",
+              "tracked.person_in_zone",
+              "tracked.red_phase_crossing"
+            ],
+            "title": "Capability Id",
+            "type": "string"
+          },
+          "object_classes": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Object Classes",
+            "type": "array"
+          },
+          "rule_id": {
+            "$ref": "#/$defs/ResourceId"
+          }
+        },
+        "required": [
+          "rule_id",
+          "capability_id",
+          "object_classes"
+        ],
+        "title": "TrackedRule",
+        "type": "object"
+      },
+      "TrackedRulesSpec": {
+        "additionalProperties": false,
+        "properties": {
+          "approved_action_refs": {
+            "items": {
+              "$ref": "#/$defs/ResourceId"
+            },
+            "title": "Approved Action Refs",
+            "type": "array"
+          },
+          "evidence_policy": {
+            "$ref": "#/$defs/EvidencePolicy",
+            "default": {
+              "after_ms": 3000,
+              "before_ms": 3000
+            }
+          },
+          "kind": {
+            "const": "tracked_rules",
+            "title": "Kind",
+            "type": "string"
+          },
+          "limits": {
+            "$ref": "#/$defs/ExecutionLimits",
+            "default": {
+              "max_duration_ms": 300000,
+              "max_model_calls": 100
+            }
+          },
+          "objective": {
+            "minLength": 1,
+            "title": "Objective",
+            "type": "string"
+          },
+          "rules": {
+            "items": {
+              "$ref": "#/$defs/TrackedRule"
+            },
+            "minItems": 1,
+            "title": "Rules",
+            "type": "array"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "default": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "objective",
+          "kind",
+          "rules"
+        ],
+        "title": "TrackedRulesSpec",
+        "type": "object"
+      }
+    },
+    "discriminator": {
+      "mapping": {
+        "semantic_windows": "#/$defs/SemanticWindowsSpec",
+        "tracked_rules": "#/$defs/TrackedRulesSpec"
+      },
+      "propertyName": "kind"
+    },
+    "oneOf": [
+      {
+        "$ref": "#/$defs/TrackedRulesSpec"
+      },
+      {
+        "$ref": "#/$defs/SemanticWindowsSpec"
+      }
+    ]
+  },
+  "AppVersion": {
+    "$defs": {
+      "EvidencePolicy": {
+        "additionalProperties": false,
+        "properties": {
+          "after_ms": {
+            "default": 3000,
+            "minimum": 0,
+            "title": "After Ms",
+            "type": "integer"
+          },
+          "before_ms": {
+            "default": 3000,
+            "minimum": 0,
+            "title": "Before Ms",
+            "type": "integer"
+          }
+        },
+        "title": "EvidencePolicy",
+        "type": "object"
+      },
+      "ExecutionLimits": {
+        "additionalProperties": false,
+        "properties": {
+          "max_duration_ms": {
+            "default": 300000,
+            "exclusiveMinimum": 0,
+            "title": "Max Duration Ms",
+            "type": "integer"
+          },
+          "max_model_calls": {
+            "default": 100,
+            "minimum": 0,
+            "title": "Max Model Calls",
+            "type": "integer"
+          }
+        },
+        "title": "ExecutionLimits",
+        "type": "object"
+      },
+      "ResourceId": {
+        "title": "ResourceId",
+        "type": "string"
+      },
+      "SemanticCondition": {
+        "additionalProperties": false,
+        "properties": {
+          "condition_id": {
+            "$ref": "#/$defs/ResourceId"
+          },
+          "prompt": {
+            "minLength": 1,
+            "title": "Prompt",
+            "type": "string"
+          },
+          "roi_id": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ResourceId"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "condition_id",
+          "prompt"
+        ],
+        "title": "SemanticCondition",
+        "type": "object"
+      },
+      "SemanticWindowsSpec": {
+        "additionalProperties": false,
+        "properties": {
+          "approved_action_refs": {
+            "items": {
+              "$ref": "#/$defs/ResourceId"
+            },
+            "title": "Approved Action Refs",
+            "type": "array"
+          },
+          "conditions": {
+            "items": {
+              "$ref": "#/$defs/SemanticCondition"
+            },
+            "minItems": 1,
+            "title": "Conditions",
+            "type": "array"
+          },
+          "evidence_policy": {
+            "$ref": "#/$defs/EvidencePolicy",
+            "default": {
+              "after_ms": 3000,
+              "before_ms": 3000
+            }
+          },
+          "kind": {
+            "const": "semantic_windows",
+            "title": "Kind",
+            "type": "string"
+          },
+          "limits": {
+            "$ref": "#/$defs/ExecutionLimits",
+            "default": {
+              "max_duration_ms": 300000,
+              "max_model_calls": 100
+            }
+          },
+          "objective": {
+            "minLength": 1,
+            "title": "Objective",
+            "type": "string"
+          },
+          "sample_fps": {
+            "exclusiveMinimum": 0,
+            "maximum": 10,
+            "title": "Sample Fps",
+            "type": "number"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "default": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "stride_ms": {
+            "exclusiveMinimum": 0,
+            "maximum": 30000,
+            "title": "Stride Ms",
+            "type": "integer"
+          },
+          "title": {
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "window_ms": {
+            "exclusiveMinimum": 0,
+            "maximum": 30000,
+            "title": "Window Ms",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "title",
+          "objective",
+          "kind",
+          "conditions",
+          "window_ms",
+          "stride_ms",
+          "sample_fps"
+        ],
+        "title": "SemanticWindowsSpec",
+        "type": "object"
+      },
+      "TrackedRule": {
+        "additionalProperties": false,
+        "properties": {
+          "capability_id": {
+            "enum": [
+              "tracked.line_crossing",
+              "tracked.person_in_zone",
+              "tracked.red_phase_crossing"
+            ],
+            "title": "Capability Id",
+            "type": "string"
+          },
+          "object_classes": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Object Classes",
+            "type": "array"
+          },
+          "rule_id": {
+            "$ref": "#/$defs/ResourceId"
+          }
+        },
+        "required": [
+          "rule_id",
+          "capability_id",
+          "object_classes"
+        ],
+        "title": "TrackedRule",
+        "type": "object"
+      },
+      "TrackedRulesSpec": {
+        "additionalProperties": false,
+        "properties": {
+          "approved_action_refs": {
+            "items": {
+              "$ref": "#/$defs/ResourceId"
+            },
+            "title": "Approved Action Refs",
+            "type": "array"
+          },
+          "evidence_policy": {
+            "$ref": "#/$defs/EvidencePolicy",
+            "default": {
+              "after_ms": 3000,
+              "before_ms": 3000
+            }
+          },
+          "kind": {
+            "const": "tracked_rules",
+            "title": "Kind",
+            "type": "string"
+          },
+          "limits": {
+            "$ref": "#/$defs/ExecutionLimits",
+            "default": {
+              "max_duration_ms": 300000,
+              "max_model_calls": 100
+            }
+          },
+          "objective": {
+            "minLength": 1,
+            "title": "Objective",
+            "type": "string"
+          },
+          "rules": {
+            "items": {
+              "$ref": "#/$defs/TrackedRule"
+            },
+            "minItems": 1,
+            "title": "Rules",
+            "type": "array"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "default": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "objective",
+          "kind",
+          "rules"
+        ],
+        "title": "TrackedRulesSpec",
+        "type": "object"
+      },
+      "UtcTimestamp": {
+        "format": "date-time",
+        "title": "UtcTimestamp",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "app_id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "capability_manifest": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "title": "Capability Manifest",
+        "type": "object"
+      },
+      "created_at": {
+        "$ref": "#/$defs/UtcTimestamp"
+      },
+      "created_by": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "model_manifest": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "title": "Model Manifest",
+        "type": "object"
+      },
+      "parent_id": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ResourceId"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "spec": {
+        "discriminator": {
+          "mapping": {
+            "semantic_windows": "#/$defs/SemanticWindowsSpec",
+            "tracked_rules": "#/$defs/TrackedRulesSpec"
+          },
+          "propertyName": "kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/TrackedRulesSpec"
+          },
+          {
+            "$ref": "#/$defs/SemanticWindowsSpec"
+          }
+        ],
+        "title": "Spec"
+      },
+      "validation_report": {
+        "items": {
+          "type": "string"
+        },
+        "title": "Validation Report",
+        "type": "array"
+      },
+      "workspace_id": {
+        "$ref": "#/$defs/ResourceId"
+      }
+    },
+    "required": [
+      "id",
+      "app_id",
+      "workspace_id",
+      "spec",
+      "capability_manifest",
+      "model_manifest",
+      "validation_report",
+      "created_by",
+      "created_at"
+    ],
+    "title": "AppVersion",
+    "type": "object"
+  },
+  "BoxN": {
+    "additionalProperties": false,
+    "properties": {
+      "x1": {
+        "maximum": 1,
+        "minimum": 0,
+        "title": "X1",
+        "type": "number"
+      },
+      "x2": {
+        "maximum": 1,
+        "minimum": 0,
+        "title": "X2",
+        "type": "number"
+      },
+      "y1": {
+        "maximum": 1,
+        "minimum": 0,
+        "title": "Y1",
+        "type": "number"
+      },
+      "y2": {
+        "maximum": 1,
+        "minimum": 0,
+        "title": "Y2",
+        "type": "number"
+      }
+    },
+    "required": [
+      "x1",
+      "y1",
+      "x2",
+      "y2"
+    ],
+    "title": "BoxN",
+    "type": "object"
+  },
+  "BuildTurn": {
+    "$defs": {
+      "EvidencePolicy": {
+        "additionalProperties": false,
+        "properties": {
+          "after_ms": {
+            "default": 3000,
+            "minimum": 0,
+            "title": "After Ms",
+            "type": "integer"
+          },
+          "before_ms": {
+            "default": 3000,
+            "minimum": 0,
+            "title": "Before Ms",
+            "type": "integer"
+          }
+        },
+        "title": "EvidencePolicy",
+        "type": "object"
+      },
+      "ExecutionLimits": {
+        "additionalProperties": false,
+        "properties": {
+          "max_duration_ms": {
+            "default": 300000,
+            "exclusiveMinimum": 0,
+            "title": "Max Duration Ms",
+            "type": "integer"
+          },
+          "max_model_calls": {
+            "default": 100,
+            "minimum": 0,
+            "title": "Max Model Calls",
+            "type": "integer"
+          }
+        },
+        "title": "ExecutionLimits",
+        "type": "object"
+      },
+      "ModelInvocationMetadata": {
+        "additionalProperties": false,
+        "properties": {
+          "adapter_mode": {
+            "enum": [
+              "structured",
+              "video",
+              "image",
+              "scripted"
+            ],
+            "title": "Adapter Mode",
+            "type": "string"
+          },
+          "duration_ms": {
+            "minimum": 0,
+            "title": "Duration Ms",
+            "type": "integer"
+          },
+          "estimated_cost": {
+            "$ref": "#/$defs/MoneyMicrousd",
+            "default": 0
+          },
+          "input_tokens": {
+            "minimum": 0,
+            "title": "Input Tokens",
+            "type": "integer"
+          },
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "output_tokens": {
+            "minimum": 0,
+            "title": "Output Tokens",
+            "type": "integer"
+          },
+          "prompt_hash": {
+            "title": "Prompt Hash",
+            "type": "string"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "retry_count": {
+            "minimum": 0,
+            "title": "Retry Count",
+            "type": "integer"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "model",
+          "revision",
+          "prompt_hash",
+          "input_tokens",
+          "output_tokens",
+          "duration_ms",
+          "retry_count",
+          "adapter_mode"
+        ],
+        "title": "ModelInvocationMetadata",
+        "type": "object"
+      },
+      "MoneyMicrousd": {
+        "title": "MoneyMicrousd",
+        "type": "integer"
+      },
+      "ResourceId": {
+        "title": "ResourceId",
+        "type": "string"
+      },
+      "SemanticCondition": {
+        "additionalProperties": false,
+        "properties": {
+          "condition_id": {
+            "$ref": "#/$defs/ResourceId"
+          },
+          "prompt": {
+            "minLength": 1,
+            "title": "Prompt",
+            "type": "string"
+          },
+          "roi_id": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ResourceId"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "condition_id",
+          "prompt"
+        ],
+        "title": "SemanticCondition",
+        "type": "object"
+      },
+      "SemanticWindowsSpec": {
+        "additionalProperties": false,
+        "properties": {
+          "approved_action_refs": {
+            "items": {
+              "$ref": "#/$defs/ResourceId"
+            },
+            "title": "Approved Action Refs",
+            "type": "array"
+          },
+          "conditions": {
+            "items": {
+              "$ref": "#/$defs/SemanticCondition"
+            },
+            "minItems": 1,
+            "title": "Conditions",
+            "type": "array"
+          },
+          "evidence_policy": {
+            "$ref": "#/$defs/EvidencePolicy",
+            "default": {
+              "after_ms": 3000,
+              "before_ms": 3000
+            }
+          },
+          "kind": {
+            "const": "semantic_windows",
+            "title": "Kind",
+            "type": "string"
+          },
+          "limits": {
+            "$ref": "#/$defs/ExecutionLimits",
+            "default": {
+              "max_duration_ms": 300000,
+              "max_model_calls": 100
+            }
+          },
+          "objective": {
+            "minLength": 1,
+            "title": "Objective",
+            "type": "string"
+          },
+          "sample_fps": {
+            "exclusiveMinimum": 0,
+            "maximum": 10,
+            "title": "Sample Fps",
+            "type": "number"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "default": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "stride_ms": {
+            "exclusiveMinimum": 0,
+            "maximum": 30000,
+            "title": "Stride Ms",
+            "type": "integer"
+          },
+          "title": {
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "window_ms": {
+            "exclusiveMinimum": 0,
+            "maximum": 30000,
+            "title": "Window Ms",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "title",
+          "objective",
+          "kind",
+          "conditions",
+          "window_ms",
+          "stride_ms",
+          "sample_fps"
+        ],
+        "title": "SemanticWindowsSpec",
+        "type": "object"
+      },
+      "TrackedRule": {
+        "additionalProperties": false,
+        "properties": {
+          "capability_id": {
+            "enum": [
+              "tracked.line_crossing",
+              "tracked.person_in_zone",
+              "tracked.red_phase_crossing"
+            ],
+            "title": "Capability Id",
+            "type": "string"
+          },
+          "object_classes": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Object Classes",
+            "type": "array"
+          },
+          "rule_id": {
+            "$ref": "#/$defs/ResourceId"
+          }
+        },
+        "required": [
+          "rule_id",
+          "capability_id",
+          "object_classes"
+        ],
+        "title": "TrackedRule",
+        "type": "object"
+      },
+      "TrackedRulesSpec": {
+        "additionalProperties": false,
+        "properties": {
+          "approved_action_refs": {
+            "items": {
+              "$ref": "#/$defs/ResourceId"
+            },
+            "title": "Approved Action Refs",
+            "type": "array"
+          },
+          "evidence_policy": {
+            "$ref": "#/$defs/EvidencePolicy",
+            "default": {
+              "after_ms": 3000,
+              "before_ms": 3000
+            }
+          },
+          "kind": {
+            "const": "tracked_rules",
+            "title": "Kind",
+            "type": "string"
+          },
+          "limits": {
+            "$ref": "#/$defs/ExecutionLimits",
+            "default": {
+              "max_duration_ms": 300000,
+              "max_model_calls": 100
+            }
+          },
+          "objective": {
+            "minLength": 1,
+            "title": "Objective",
+            "type": "string"
+          },
+          "rules": {
+            "items": {
+              "$ref": "#/$defs/TrackedRule"
+            },
+            "minItems": 1,
+            "title": "Rules",
+            "type": "array"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "default": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "objective",
+          "kind",
+          "rules"
+        ],
+        "title": "TrackedRulesSpec",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "app_id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "base_revision": {
+        "minimum": 0,
+        "title": "Base Revision",
+        "type": "integer"
+      },
+      "base_version_id": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ResourceId"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "clarification": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Clarification"
+      },
+      "id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "instruction": {
+        "title": "Instruction",
+        "type": "string"
+      },
+      "preview_run_id": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ResourceId"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "proposed_version_id": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ResourceId"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "proposed_version_spec": {
+        "anyOf": [
+          {
+            "discriminator": {
+              "mapping": {
+                "semantic_windows": "#/$defs/SemanticWindowsSpec",
+                "tracked_rules": "#/$defs/TrackedRulesSpec"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/TrackedRulesSpec"
+              },
+              {
+                "$ref": "#/$defs/SemanticWindowsSpec"
+              }
+            ]
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Proposed Version Spec"
+      },
+      "status": {
+        "enum": [
+          "queued",
+          "running",
+          "needs_input",
+          "proposed",
+          "unsupported",
+          "failed"
+        ],
+        "title": "Status",
+        "type": "string"
+      },
+      "tool_progress": {
+        "items": {
+          "type": "string"
+        },
+        "title": "Tool Progress",
+        "type": "array"
+      },
+      "usage": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ModelInvocationMetadata"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      }
+    },
+    "required": [
+      "id",
+      "app_id",
+      "instruction",
+      "base_revision",
+      "status"
+    ],
+    "title": "BuildTurn",
+    "type": "object"
+  },
+  "Calibration": {
+    "$defs": {
+      "BoxN": {
+        "additionalProperties": false,
+        "properties": {
+          "x1": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "X1",
+            "type": "number"
+          },
+          "x2": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "X2",
+            "type": "number"
+          },
+          "y1": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Y1",
+            "type": "number"
+          },
+          "y2": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Y2",
+            "type": "number"
+          }
+        },
+        "required": [
+          "x1",
+          "y1",
+          "x2",
+          "y2"
+        ],
+        "title": "BoxN",
+        "type": "object"
+      },
+      "FrameRef": {
+        "additionalProperties": false,
+        "properties": {
+          "height": {
+            "exclusiveMinimum": 0,
+            "title": "Height",
+            "type": "integer"
+          },
+          "pts": {
+            "title": "Pts",
+            "type": "integer"
+          },
+          "sequence": {
+            "minimum": 0,
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "source_hash": {
+            "minLength": 16,
+            "title": "Source Hash",
+            "type": "string"
+          },
+          "source_id": {
+            "$ref": "#/$defs/ResourceId"
+          },
+          "source_time_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          },
+          "time_base_den": {
+            "exclusiveMinimum": 0,
+            "title": "Time Base Den",
+            "type": "integer"
+          },
+          "time_base_num": {
+            "exclusiveMinimum": 0,
+            "title": "Time Base Num",
+            "type": "integer"
+          },
+          "transform_id": {
+            "$ref": "#/$defs/ResourceId"
+          },
+          "width": {
+            "exclusiveMinimum": 0,
+            "title": "Width",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source_id",
+          "source_hash",
+          "pts",
+          "time_base_num",
+          "time_base_den",
+          "source_time_ms",
+          "sequence",
+          "width",
+          "height",
+          "transform_id"
+        ],
+        "title": "FrameRef",
+        "type": "object"
+      },
+      "PointN": {
+        "additionalProperties": false,
+        "properties": {
+          "x": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "X",
+            "type": "number"
+          },
+          "y": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Y",
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "title": "PointN",
+        "type": "object"
+      },
+      "ResourceId": {
+        "title": "ResourceId",
+        "type": "string"
+      },
+      "SourceTimeMs": {
+        "title": "SourceTimeMs",
+        "type": "integer"
+      },
+      "UtcTimestamp": {
+        "format": "date-time",
+        "title": "UtcTimestamp",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "camera_binding": {
+        "title": "Camera Binding",
+        "type": "string"
+      },
+      "confirmed_at": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/UtcTimestamp"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "confirmed_by": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ResourceId"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "governing_signals": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "title": "Governing Signals",
+        "type": "object"
+      },
+      "id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "lanes": {
+        "additionalProperties": {
+          "items": {
+            "$ref": "#/$defs/PointN"
+          },
+          "type": "array"
+        },
+        "title": "Lanes",
+        "type": "object"
+      },
+      "lines": {
+        "additionalProperties": {
+          "items": {
+            "$ref": "#/$defs/PointN"
+          },
+          "type": "array"
+        },
+        "title": "Lines",
+        "type": "object"
+      },
+      "reference_frame": {
+        "$ref": "#/$defs/FrameRef"
+      },
+      "revision": {
+        "minimum": 1,
+        "title": "Revision",
+        "type": "integer"
+      },
+      "rois": {
+        "additionalProperties": {
+          "$ref": "#/$defs/BoxN"
+        },
+        "title": "Rois",
+        "type": "object"
+      },
+      "scene_fingerprint": {
+        "title": "Scene Fingerprint",
+        "type": "string"
+      },
+      "source_id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "workspace_id": {
+        "$ref": "#/$defs/ResourceId"
+      }
+    },
+    "required": [
+      "id",
+      "source_id",
+      "workspace_id",
+      "camera_binding",
+      "revision",
+      "reference_frame",
+      "lanes",
+      "lines",
+      "rois",
+      "governing_signals",
+      "scene_fingerprint"
+    ],
+    "title": "Calibration",
+    "type": "object"
+  },
+  "CompilerOutcome": {
+    "$defs": {
+      "AppVersion": {
+        "additionalProperties": false,
+        "properties": {
+          "app_id": {
+            "$ref": "#/$defs/ResourceId"
+          },
+          "capability_manifest": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Capability Manifest",
+            "type": "object"
+          },
+          "created_at": {
+            "$ref": "#/$defs/UtcTimestamp"
+          },
+          "created_by": {
+            "$ref": "#/$defs/ResourceId"
+          },
+          "id": {
+            "$ref": "#/$defs/ResourceId"
+          },
+          "model_manifest": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Model Manifest",
+            "type": "object"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ResourceId"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "spec": {
+            "discriminator": {
+              "mapping": {
+                "semantic_windows": "#/$defs/SemanticWindowsSpec",
+                "tracked_rules": "#/$defs/TrackedRulesSpec"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/TrackedRulesSpec"
+              },
+              {
+                "$ref": "#/$defs/SemanticWindowsSpec"
+              }
+            ],
+            "title": "Spec"
+          },
+          "validation_report": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Validation Report",
+            "type": "array"
+          },
+          "workspace_id": {
+            "$ref": "#/$defs/ResourceId"
+          }
+        },
+        "required": [
+          "id",
+          "app_id",
+          "workspace_id",
+          "spec",
+          "capability_manifest",
+          "model_manifest",
+          "validation_report",
+          "created_by",
+          "created_at"
+        ],
+        "title": "AppVersion",
+        "type": "object"
+      },
+      "EvidencePolicy": {
+        "additionalProperties": false,
+        "properties": {
+          "after_ms": {
+            "default": 3000,
+            "minimum": 0,
+            "title": "After Ms",
+            "type": "integer"
+          },
+          "before_ms": {
+            "default": 3000,
+            "minimum": 0,
+            "title": "Before Ms",
+            "type": "integer"
+          }
+        },
+        "title": "EvidencePolicy",
+        "type": "object"
+      },
+      "ExecutionLimits": {
+        "additionalProperties": false,
+        "properties": {
+          "max_duration_ms": {
+            "default": 300000,
+            "exclusiveMinimum": 0,
+            "title": "Max Duration Ms",
+            "type": "integer"
+          },
+          "max_model_calls": {
+            "default": 100,
+            "minimum": 0,
+            "title": "Max Model Calls",
+            "type": "integer"
+          }
+        },
+        "title": "ExecutionLimits",
+        "type": "object"
+      },
+      "NeedsInput": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "needs_input",
+            "title": "Kind",
+            "type": "string"
+          },
+          "questions": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Questions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "kind",
+          "questions"
+        ],
+        "title": "NeedsInput",
+        "type": "object"
+      },
+      "ProposedVersion": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "proposed_version",
+            "title": "Kind",
+            "type": "string"
+          },
+          "version": {
+            "$ref": "#/$defs/AppVersion"
+          }
+        },
+        "required": [
+          "kind",
+          "version"
+        ],
+        "title": "ProposedVersion",
+        "type": "object"
+      },
+      "ResourceId": {
+        "title": "ResourceId",
+        "type": "string"
+      },
+      "SemanticCondition": {
+        "additionalProperties": false,
+        "properties": {
+          "condition_id": {
+            "$ref": "#/$defs/ResourceId"
+          },
+          "prompt": {
+            "minLength": 1,
+            "title": "Prompt",
+            "type": "string"
+          },
+          "roi_id": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ResourceId"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "condition_id",
+          "prompt"
+        ],
+        "title": "SemanticCondition",
+        "type": "object"
+      },
+      "SemanticWindowsSpec": {
+        "additionalProperties": false,
+        "properties": {
+          "approved_action_refs": {
+            "items": {
+              "$ref": "#/$defs/ResourceId"
+            },
+            "title": "Approved Action Refs",
+            "type": "array"
+          },
+          "conditions": {
+            "items": {
+              "$ref": "#/$defs/SemanticCondition"
+            },
+            "minItems": 1,
+            "title": "Conditions",
+            "type": "array"
+          },
+          "evidence_policy": {
+            "$ref": "#/$defs/EvidencePolicy",
+            "default": {
+              "after_ms": 3000,
+              "before_ms": 3000
+            }
+          },
+          "kind": {
+            "const": "semantic_windows",
+            "title": "Kind",
+            "type": "string"
+          },
+          "limits": {
+            "$ref": "#/$defs/ExecutionLimits",
+            "default": {
+              "max_duration_ms": 300000,
+              "max_model_calls": 100
+            }
+          },
+          "objective": {
+            "minLength": 1,
+            "title": "Objective",
+            "type": "string"
+          },
+          "sample_fps": {
+            "exclusiveMinimum": 0,
+            "maximum": 10,
+            "title": "Sample Fps",
+            "type": "number"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "default": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "stride_ms": {
+            "exclusiveMinimum": 0,
+            "maximum": 30000,
+            "title": "Stride Ms",
+            "type": "integer"
+          },
+          "title": {
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "window_ms": {
+            "exclusiveMinimum": 0,
+            "maximum": 30000,
+            "title": "Window Ms",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "title",
+          "objective",
+          "kind",
+          "conditions",
+          "window_ms",
+          "stride_ms",
+          "sample_fps"
+        ],
+        "title": "SemanticWindowsSpec",
+        "type": "object"
+      },
+      "TrackedRule": {
+        "additionalProperties": false,
+        "properties": {
+          "capability_id": {
+            "enum": [
+              "tracked.line_crossing",
+              "tracked.person_in_zone",
+              "tracked.red_phase_crossing"
+            ],
+            "title": "Capability Id",
+            "type": "string"
+          },
+          "object_classes": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Object Classes",
+            "type": "array"
+          },
+          "rule_id": {
+            "$ref": "#/$defs/ResourceId"
+          }
+        },
+        "required": [
+          "rule_id",
+          "capability_id",
+          "object_classes"
+        ],
+        "title": "TrackedRule",
+        "type": "object"
+      },
+      "TrackedRulesSpec": {
+        "additionalProperties": false,
+        "properties": {
+          "approved_action_refs": {
+            "items": {
+              "$ref": "#/$defs/ResourceId"
+            },
+            "title": "Approved Action Refs",
+            "type": "array"
+          },
+          "evidence_policy": {
+            "$ref": "#/$defs/EvidencePolicy",
+            "default": {
+              "after_ms": 3000,
+              "before_ms": 3000
+            }
+          },
+          "kind": {
+            "const": "tracked_rules",
+            "title": "Kind",
+            "type": "string"
+          },
+          "limits": {
+            "$ref": "#/$defs/ExecutionLimits",
+            "default": {
+              "max_duration_ms": 300000,
+              "max_model_calls": 100
+            }
+          },
+          "objective": {
+            "minLength": 1,
+            "title": "Objective",
+            "type": "string"
+          },
+          "rules": {
+            "items": {
+              "$ref": "#/$defs/TrackedRule"
+            },
+            "minItems": 1,
+            "title": "Rules",
+            "type": "array"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "default": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "objective",
+          "kind",
+          "rules"
+        ],
+        "title": "TrackedRulesSpec",
+        "type": "object"
+      },
+      "UnsupportedRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "kind": {
+            "const": "unsupported_request",
+            "title": "Kind",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "code",
+          "reason"
+        ],
+        "title": "UnsupportedRequest",
+        "type": "object"
+      },
+      "UtcTimestamp": {
+        "format": "date-time",
+        "title": "UtcTimestamp",
+        "type": "string"
+      }
+    },
+    "discriminator": {
+      "mapping": {
+        "needs_input": "#/$defs/NeedsInput",
+        "proposed_version": "#/$defs/ProposedVersion",
+        "unsupported_request": "#/$defs/UnsupportedRequest"
+      },
+      "propertyName": "kind"
+    },
+    "oneOf": [
+      {
+        "$ref": "#/$defs/NeedsInput"
+      },
+      {
+        "$ref": "#/$defs/ProposedVersion"
+      },
+      {
+        "$ref": "#/$defs/UnsupportedRequest"
+      }
+    ]
+  },
+  "CrossingBracket": {
+    "$defs": {
+      "SourceTimeMs": {
+        "title": "SourceTimeMs",
+        "type": "integer"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "first_post_ms": {
+        "$ref": "#/$defs/SourceTimeMs"
+      },
+      "last_pre_ms": {
+        "$ref": "#/$defs/SourceTimeMs"
+      }
+    },
+    "required": [
+      "last_pre_ms",
+      "first_post_ms"
+    ],
+    "title": "CrossingBracket",
+    "type": "object"
+  },
+  "DecodedFrame": {
+    "$defs": {
+      "FrameRef": {
+        "additionalProperties": false,
+        "properties": {
+          "height": {
+            "exclusiveMinimum": 0,
+            "title": "Height",
+            "type": "integer"
+          },
+          "pts": {
+            "title": "Pts",
+            "type": "integer"
+          },
+          "sequence": {
+            "minimum": 0,
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "source_hash": {
+            "minLength": 16,
+            "title": "Source Hash",
+            "type": "string"
+          },
+          "source_id": {
+            "$ref": "#/$defs/ResourceId"
+          },
+          "source_time_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          },
+          "time_base_den": {
+            "exclusiveMinimum": 0,
+            "title": "Time Base Den",
+            "type": "integer"
+          },
+          "time_base_num": {
+            "exclusiveMinimum": 0,
+            "title": "Time Base Num",
+            "type": "integer"
+          },
+          "transform_id": {
+            "$ref": "#/$defs/ResourceId"
+          },
+          "width": {
+            "exclusiveMinimum": 0,
+            "title": "Width",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source_id",
+          "source_hash",
+          "pts",
+          "time_base_num",
+          "time_base_den",
+          "source_time_ms",
+          "sequence",
+          "width",
+          "height",
+          "transform_id"
+        ],
+        "title": "FrameRef",
+        "type": "object"
+      },
+      "ResourceId": {
+        "title": "ResourceId",
+        "type": "string"
+      },
+      "SourceTimeMs": {
+        "title": "SourceTimeMs",
+        "type": "integer"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "frame_ref": {
+        "$ref": "#/$defs/FrameRef"
+      },
+      "rgb": {
+        "format": "binary",
+        "title": "Rgb",
+        "type": "string"
+      },
+      "stride": {
+        "exclusiveMinimum": 0,
+        "title": "Stride",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "frame_ref",
+      "rgb",
+      "stride"
+    ],
+    "title": "DecodedFrame",
+    "type": "object"
+  },
+  "DetectionBatch": {
+    "$defs": {
+      "BoxN": {
+        "additionalProperties": false,
+        "properties": {
+          "x1": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "X1",
+            "type": "number"
+          },
+          "x2": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "X2",
+            "type": "number"
+          },
+          "y1": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Y1",
+            "type": "number"
+          },
+          "y2": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Y2",
+            "type": "number"
+          }
+        },
+        "required": [
+          "x1",
+          "y1",
+          "x2",
+          "y2"
+        ],
+        "title": "BoxN",
+        "type": "object"
+      },
+      "Detection": {
+        "additionalProperties": false,
+        "properties": {
+          "box": {
+            "$ref": "#/$defs/BoxN"
+          },
+          "class_name": {
+            "title": "Class Name",
+            "type": "string"
+          },
+          "model_ref": {
+            "title": "Model Ref",
+            "type": "string"
+          },
+          "score": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Score",
+            "type": "number"
+          }
+        },
+        "required": [
+          "class_name",
+          "box",
+          "score",
+          "model_ref"
+        ],
+        "title": "Detection",
+        "type": "object"
+      },
+      "FrameRef": {
+        "additionalProperties": false,
+        "properties": {
+          "height": {
+            "exclusiveMinimum": 0,
+            "title": "Height",
+            "type": "integer"
+          },
+          "pts": {
+            "title": "Pts",
+            "type": "integer"
+          },
+          "sequence": {
+            "minimum": 0,
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "source_hash": {
+            "minLength": 16,
+            "title": "Source Hash",
+            "type": "string"
+          },
+          "source_id": {
+            "$ref": "#/$defs/ResourceId"
+          },
+          "source_time_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          },
+          "time_base_den": {
+            "exclusiveMinimum": 0,
+            "title": "Time Base Den",
+            "type": "integer"
+          },
+          "time_base_num": {
+            "exclusiveMinimum": 0,
+            "title": "Time Base Num",
+            "type": "integer"
+          },
+          "transform_id": {
+            "$ref": "#/$defs/ResourceId"
+          },
+          "width": {
+            "exclusiveMinimum": 0,
+            "title": "Width",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source_id",
+          "source_hash",
+          "pts",
+          "time_base_num",
+          "time_base_den",
+          "source_time_ms",
+          "sequence",
+          "width",
+          "height",
+          "transform_id"
+        ],
+        "title": "FrameRef",
+        "type": "object"
+      },
+      "ModelInvocationMetadata": {
+        "additionalProperties": false,
+        "properties": {
+          "adapter_mode": {
+            "enum": [
+              "structured",
+              "video",
+              "image",
+              "scripted"
+            ],
+            "title": "Adapter Mode",
+            "type": "string"
+          },
+          "duration_ms": {
+            "minimum": 0,
+            "title": "Duration Ms",
+            "type": "integer"
+          },
+          "estimated_cost": {
+            "$ref": "#/$defs/MoneyMicrousd",
+            "default": 0
+          },
+          "input_tokens": {
+            "minimum": 0,
+            "title": "Input Tokens",
+            "type": "integer"
+          },
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "output_tokens": {
+            "minimum": 0,
+            "title": "Output Tokens",
+            "type": "integer"
+          },
+          "prompt_hash": {
+            "title": "Prompt Hash",
+            "type": "string"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "retry_count": {
+            "minimum": 0,
+            "title": "Retry Count",
+            "type": "integer"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "model",
+          "revision",
+          "prompt_hash",
+          "input_tokens",
+          "output_tokens",
+          "duration_ms",
+          "retry_count",
+          "adapter_mode"
+        ],
+        "title": "ModelInvocationMetadata",
+        "type": "object"
+      },
+      "MoneyMicrousd": {
+        "title": "MoneyMicrousd",
+        "type": "integer"
+      },
+      "ResourceId": {
+        "title": "ResourceId",
+        "type": "string"
+      },
+      "SourceTimeMs": {
+        "title": "SourceTimeMs",
+        "type": "integer"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "detections": {
+        "items": {
+          "$ref": "#/$defs/Detection"
+        },
+        "title": "Detections",
+        "type": "array"
+      },
+      "frame_ref": {
+        "$ref": "#/$defs/FrameRef"
+      },
+      "invocation": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ModelInvocationMetadata"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      }
+    },
+    "required": [
+      "frame_ref",
+      "detections"
+    ],
+    "title": "DetectionBatch",
+    "type": "object"
+  },
+  "Event": {
+    "$defs": {
+      "EvidenceManifest": {
+        "additionalProperties": false,
+        "properties": {
+          "actual_range": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/TimeRange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "clip_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ResourceId"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "clipped_end": {
+            "default": false,
+            "title": "Clipped End",
+            "type": "boolean"
+          },
+          "clipped_start": {
+            "default": false,
+            "title": "Clipped Start",
+            "type": "boolean"
+          },
+          "requested_range": {
+            "$ref": "#/$defs/TimeRange"
+          },
+          "state": {
+            "enum": [
+              "pending",
+              "available",
+              "degraded",
+              "failed"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "thumbnail_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ResourceId"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "requested_range",
+          "actual_range",
+          "state"
+        ],
+        "title": "EvidenceManifest",
+        "type": "object"
+      },
+      "ResourceId": {
+        "title": "ResourceId",
+        "type": "string"
+      },
+      "SourceTimeMs": {
+        "title": "SourceTimeMs",
+        "type": "integer"
+      },
+      "TimeRange": {
+        "additionalProperties": false,
+        "properties": {
+          "end_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          },
+          "start_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          }
+        },
+        "required": [
+          "start_ms",
+          "end_ms"
+        ],
+        "title": "TimeRange",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "attempt_id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "calibration_id": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ResourceId"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "evidence": {
+        "$ref": "#/$defs/EvidenceManifest"
+      },
+      "facts": {
+        "additionalProperties": true,
+        "title": "Facts",
+        "type": "object"
+      },
+      "human_review": {
+        "enum": [
+          "unreviewed",
+          "confirmed_by_user",
+          "dismissed_by_user"
+        ],
+        "title": "Human Review",
+        "type": "string"
+      },
+      "id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "machine_decision": {
+        "enum": [
+          "candidate",
+          "supported",
+          "rejected",
+          "inconclusive"
+        ],
+        "title": "Machine Decision",
+        "type": "string"
+      },
+      "revision": {
+        "minimum": 0,
+        "title": "Revision",
+        "type": "integer"
+      },
+      "rule_id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "run_id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "source_range": {
+        "$ref": "#/$defs/TimeRange"
+      },
+      "spec_version_id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "track_refs": {
+        "items": {
+          "type": "string"
+        },
+        "title": "Track Refs",
+        "type": "array"
+      }
+    },
+    "required": [
+      "id",
+      "run_id",
+      "attempt_id",
+      "spec_version_id",
+      "calibration_id",
+      "source_range",
+      "rule_id",
+      "track_refs",
+      "facts",
+      "evidence",
+      "machine_decision",
+      "human_review",
+      "revision"
+    ],
+    "title": "Event",
+    "type": "object"
+  },
+  "EvidenceManifest": {
+    "$defs": {
+      "ResourceId": {
+        "title": "ResourceId",
+        "type": "string"
+      },
+      "SourceTimeMs": {
+        "title": "SourceTimeMs",
+        "type": "integer"
+      },
+      "TimeRange": {
+        "additionalProperties": false,
+        "properties": {
+          "end_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          },
+          "start_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          }
+        },
+        "required": [
+          "start_ms",
+          "end_ms"
+        ],
+        "title": "TimeRange",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "actual_range": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/TimeRange"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "clip_ref": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ResourceId"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "clipped_end": {
+        "default": false,
+        "title": "Clipped End",
+        "type": "boolean"
+      },
+      "clipped_start": {
+        "default": false,
+        "title": "Clipped Start",
+        "type": "boolean"
+      },
+      "requested_range": {
+        "$ref": "#/$defs/TimeRange"
+      },
+      "state": {
+        "enum": [
+          "pending",
+          "available",
+          "degraded",
+          "failed"
+        ],
+        "title": "State",
+        "type": "string"
+      },
+      "thumbnail_ref": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ResourceId"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      }
+    },
+    "required": [
+      "requested_range",
+      "actual_range",
+      "state"
+    ],
+    "title": "EvidenceManifest",
+    "type": "object"
+  },
+  "FrameRef": {
+    "$defs": {
+      "ResourceId": {
+        "title": "ResourceId",
+        "type": "string"
+      },
+      "SourceTimeMs": {
+        "title": "SourceTimeMs",
+        "type": "integer"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "height": {
+        "exclusiveMinimum": 0,
+        "title": "Height",
+        "type": "integer"
+      },
+      "pts": {
+        "title": "Pts",
+        "type": "integer"
+      },
+      "sequence": {
+        "minimum": 0,
+        "title": "Sequence",
+        "type": "integer"
+      },
+      "source_hash": {
+        "minLength": 16,
+        "title": "Source Hash",
+        "type": "string"
+      },
+      "source_id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "source_time_ms": {
+        "$ref": "#/$defs/SourceTimeMs"
+      },
+      "time_base_den": {
+        "exclusiveMinimum": 0,
+        "title": "Time Base Den",
+        "type": "integer"
+      },
+      "time_base_num": {
+        "exclusiveMinimum": 0,
+        "title": "Time Base Num",
+        "type": "integer"
+      },
+      "transform_id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "width": {
+        "exclusiveMinimum": 0,
+        "title": "Width",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "source_id",
+      "source_hash",
+      "pts",
+      "time_base_num",
+      "time_base_den",
+      "source_time_ms",
+      "sequence",
+      "width",
+      "height",
+      "transform_id"
+    ],
+    "title": "FrameRef",
+    "type": "object"
+  },
+  "ModelInvocationMetadata": {
+    "$defs": {
+      "MoneyMicrousd": {
+        "title": "MoneyMicrousd",
+        "type": "integer"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "adapter_mode": {
+        "enum": [
+          "structured",
+          "video",
+          "image",
+          "scripted"
+        ],
+        "title": "Adapter Mode",
+        "type": "string"
+      },
+      "duration_ms": {
+        "minimum": 0,
+        "title": "Duration Ms",
+        "type": "integer"
+      },
+      "estimated_cost": {
+        "$ref": "#/$defs/MoneyMicrousd",
+        "default": 0
+      },
+      "input_tokens": {
+        "minimum": 0,
+        "title": "Input Tokens",
+        "type": "integer"
+      },
+      "model": {
+        "title": "Model",
+        "type": "string"
+      },
+      "output_tokens": {
+        "minimum": 0,
+        "title": "Output Tokens",
+        "type": "integer"
+      },
+      "prompt_hash": {
+        "title": "Prompt Hash",
+        "type": "string"
+      },
+      "provider": {
+        "title": "Provider",
+        "type": "string"
+      },
+      "retry_count": {
+        "minimum": 0,
+        "title": "Retry Count",
+        "type": "integer"
+      },
+      "revision": {
+        "title": "Revision",
+        "type": "string"
+      }
+    },
+    "required": [
+      "provider",
+      "model",
+      "revision",
+      "prompt_hash",
+      "input_tokens",
+      "output_tokens",
+      "duration_ms",
+      "retry_count",
+      "adapter_mode"
+    ],
+    "title": "ModelInvocationMetadata",
+    "type": "object"
+  },
+  "MoneyMicrousd": {
+    "title": "MoneyMicrousd",
+    "type": "integer"
+  },
+  "ObservationQuality": {
+    "$defs": {
+      "QualityFlag": {
+        "enum": [
+          "occluded",
+          "tiny_roi",
+          "timestamp_gap",
+          "predicted_only"
+        ],
+        "title": "QualityFlag",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "flags": {
+        "items": {
+          "$ref": "#/$defs/QualityFlag"
+        },
+        "title": "Flags",
+        "type": "array",
+        "uniqueItems": true
+      },
+      "reasons": {
+        "items": {
+          "type": "string"
+        },
+        "title": "Reasons",
+        "type": "array"
+      }
+    },
+    "title": "ObservationQuality",
+    "type": "object"
+  },
+  "PointN": {
+    "additionalProperties": false,
+    "properties": {
+      "x": {
+        "maximum": 1,
+        "minimum": 0,
+        "title": "X",
+        "type": "number"
+      },
+      "y": {
+        "maximum": 1,
+        "minimum": 0,
+        "title": "Y",
+        "type": "number"
+      }
+    },
+    "required": [
+      "x",
+      "y"
+    ],
+    "title": "PointN",
+    "type": "object"
+  },
+  "ResourceId": {
+    "title": "ResourceId",
+    "type": "string"
+  },
+  "RuleCandidate": {
+    "$defs": {
+      "CrossingBracket": {
+        "additionalProperties": false,
+        "properties": {
+          "first_post_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          },
+          "last_pre_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          }
+        },
+        "required": [
+          "last_pre_ms",
+          "first_post_ms"
+        ],
+        "title": "CrossingBracket",
+        "type": "object"
+      },
+      "ResourceId": {
+        "title": "ResourceId",
+        "type": "string"
+      },
+      "SourceTimeMs": {
+        "title": "SourceTimeMs",
+        "type": "integer"
+      },
+      "TimeRange": {
+        "additionalProperties": false,
+        "properties": {
+          "end_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          },
+          "start_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          }
+        },
+        "required": [
+          "start_ms",
+          "end_ms"
+        ],
+        "title": "TimeRange",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "crossing": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/CrossingBracket"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "disposition": {
+        "enum": [
+          "candidate",
+          "supported",
+          "rejected",
+          "inconclusive"
+        ],
+        "title": "Disposition",
+        "type": "string"
+      },
+      "episode_id": {
+        "title": "Episode Id",
+        "type": "string"
+      },
+      "fact_refs": {
+        "items": {
+          "type": "string"
+        },
+        "title": "Fact Refs",
+        "type": "array"
+      },
+      "persistence": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/TimeRange"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "rule_id": {
+        "$ref": "#/$defs/ResourceId"
+      }
+    },
+    "required": [
+      "rule_id",
+      "episode_id",
+      "fact_refs",
+      "disposition"
+    ],
+    "title": "RuleCandidate",
+    "type": "object"
+  },
+  "RunProgress": {
+    "$defs": {
+      "MoneyMicrousd": {
+        "title": "MoneyMicrousd",
+        "type": "integer"
+      },
+      "ResourceId": {
+        "title": "ResourceId",
+        "type": "string"
+      },
+      "SourceTimeMs": {
+        "title": "SourceTimeMs",
+        "type": "integer"
+      },
+      "TimeRange": {
+        "additionalProperties": false,
+        "properties": {
+          "end_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          },
+          "start_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          }
+        },
+        "required": [
+          "start_ms",
+          "end_ms"
+        ],
+        "title": "TimeRange",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "attempt_id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "cancel_requested": {
+        "title": "Cancel Requested",
+        "type": "boolean"
+      },
+      "phase": {
+        "enum": [
+          "queued",
+          "preparing",
+          "running",
+          "completed",
+          "partial",
+          "failed",
+          "cancelled"
+        ],
+        "title": "Phase",
+        "type": "string"
+      },
+      "processed_ranges": {
+        "items": {
+          "$ref": "#/$defs/TimeRange"
+        },
+        "title": "Processed Ranges",
+        "type": "array"
+      },
+      "processed_samples": {
+        "minimum": 0,
+        "title": "Processed Samples",
+        "type": "integer"
+      },
+      "requested_samples": {
+        "minimum": 0,
+        "title": "Requested Samples",
+        "type": "integer"
+      },
+      "review_backlog": {
+        "minimum": 0,
+        "title": "Review Backlog",
+        "type": "integer"
+      },
+      "run_id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "sequence": {
+        "minimum": 0,
+        "title": "Sequence",
+        "type": "integer"
+      },
+      "usage": {
+        "$ref": "#/$defs/MoneyMicrousd"
+      }
+    },
+    "required": [
+      "run_id",
+      "attempt_id",
+      "phase",
+      "processed_ranges",
+      "requested_samples",
+      "processed_samples",
+      "review_backlog",
+      "cancel_requested",
+      "usage",
+      "sequence"
+    ],
+    "title": "RunProgress",
+    "type": "object"
+  },
+  "SemanticObservation": {
+    "$defs": {
+      "ModelInvocationMetadata": {
+        "additionalProperties": false,
+        "properties": {
+          "adapter_mode": {
+            "enum": [
+              "structured",
+              "video",
+              "image",
+              "scripted"
+            ],
+            "title": "Adapter Mode",
+            "type": "string"
+          },
+          "duration_ms": {
+            "minimum": 0,
+            "title": "Duration Ms",
+            "type": "integer"
+          },
+          "estimated_cost": {
+            "$ref": "#/$defs/MoneyMicrousd",
+            "default": 0
+          },
+          "input_tokens": {
+            "minimum": 0,
+            "title": "Input Tokens",
+            "type": "integer"
+          },
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "output_tokens": {
+            "minimum": 0,
+            "title": "Output Tokens",
+            "type": "integer"
+          },
+          "prompt_hash": {
+            "title": "Prompt Hash",
+            "type": "string"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "retry_count": {
+            "minimum": 0,
+            "title": "Retry Count",
+            "type": "integer"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "model",
+          "revision",
+          "prompt_hash",
+          "input_tokens",
+          "output_tokens",
+          "duration_ms",
+          "retry_count",
+          "adapter_mode"
+        ],
+        "title": "ModelInvocationMetadata",
+        "type": "object"
+      },
+      "MoneyMicrousd": {
+        "title": "MoneyMicrousd",
+        "type": "integer"
+      },
+      "ResourceId": {
+        "title": "ResourceId",
+        "type": "string"
+      },
+      "SourceTimeMs": {
+        "title": "SourceTimeMs",
+        "type": "integer"
+      },
+      "TimeRange": {
+        "additionalProperties": false,
+        "properties": {
+          "end_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          },
+          "start_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          }
+        },
+        "required": [
+          "start_ms",
+          "end_ms"
+        ],
+        "title": "TimeRange",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "condition_id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "decision": {
+        "enum": [
+          "present",
+          "absent",
+          "uncertain"
+        ],
+        "title": "Decision",
+        "type": "string"
+      },
+      "evidence_refs": {
+        "items": {
+          "$ref": "#/$defs/ResourceId"
+        },
+        "title": "Evidence Refs",
+        "type": "array"
+      },
+      "invocation": {
+        "$ref": "#/$defs/ModelInvocationMetadata"
+      },
+      "observed_ranges": {
+        "items": {
+          "$ref": "#/$defs/TimeRange"
+        },
+        "title": "Observed Ranges",
+        "type": "array"
+      },
+      "requested_range": {
+        "$ref": "#/$defs/TimeRange"
+      }
+    },
+    "required": [
+      "condition_id",
+      "decision",
+      "requested_range",
+      "observed_ranges",
+      "evidence_refs",
+      "invocation"
+    ],
+    "title": "SemanticObservation",
+    "type": "object"
+  },
+  "SignalInterval": {
+    "$defs": {
+      "CrossingBracket": {
+        "additionalProperties": false,
+        "properties": {
+          "first_post_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          },
+          "last_pre_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          }
+        },
+        "required": [
+          "last_pre_ms",
+          "first_post_ms"
+        ],
+        "title": "CrossingBracket",
+        "type": "object"
+      },
+      "SourceTimeMs": {
+        "title": "SourceTimeMs",
+        "type": "integer"
+      },
+      "TimeRange": {
+        "additionalProperties": false,
+        "properties": {
+          "end_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          },
+          "start_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          }
+        },
+        "required": [
+          "start_ms",
+          "end_ms"
+        ],
+        "title": "TimeRange",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "confirmed_range": {
+        "$ref": "#/$defs/TimeRange"
+      },
+      "end_uncertainty": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/CrossingBracket"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "gaps": {
+        "items": {
+          "$ref": "#/$defs/TimeRange"
+        },
+        "title": "Gaps",
+        "type": "array"
+      },
+      "start_uncertainty": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/CrossingBracket"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "state": {
+        "enum": [
+          "red",
+          "amber",
+          "green"
+        ],
+        "title": "State",
+        "type": "string"
+      }
+    },
+    "required": [
+      "state",
+      "confirmed_range"
+    ],
+    "title": "SignalInterval",
+    "type": "object"
+  },
+  "SignalObservation": {
+    "$defs": {
+      "ObservationQuality": {
+        "additionalProperties": false,
+        "properties": {
+          "flags": {
+            "items": {
+              "$ref": "#/$defs/QualityFlag"
+            },
+            "title": "Flags",
+            "type": "array",
+            "uniqueItems": true
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          }
+        },
+        "title": "ObservationQuality",
+        "type": "object"
+      },
+      "QualityFlag": {
+        "enum": [
+          "occluded",
+          "tiny_roi",
+          "timestamp_gap",
+          "predicted_only"
+        ],
+        "title": "QualityFlag",
+        "type": "string"
+      },
+      "ResourceId": {
+        "title": "ResourceId",
+        "type": "string"
+      },
+      "SourceTimeMs": {
+        "title": "SourceTimeMs",
+        "type": "integer"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "quality": {
+        "$ref": "#/$defs/ObservationQuality"
+      },
+      "roi_id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "source_time_ms": {
+        "$ref": "#/$defs/SourceTimeMs"
+      },
+      "state": {
+        "enum": [
+          "red",
+          "amber",
+          "green",
+          "unknown"
+        ],
+        "title": "State",
+        "type": "string"
+      }
+    },
+    "required": [
+      "roi_id",
+      "source_time_ms",
+      "state",
+      "quality"
+    ],
+    "title": "SignalObservation",
+    "type": "object"
+  },
+  "SourceAsset": {
+    "$defs": {
+      "ResourceId": {
+        "title": "ResourceId",
+        "type": "string"
+      },
+      "SourceTimeMs": {
+        "title": "SourceTimeMs",
+        "type": "integer"
+      },
+      "UtcTimestamp": {
+        "format": "date-time",
+        "title": "UtcTimestamp",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "byte_size": {
+        "exclusiveMinimum": 0,
+        "title": "Byte Size",
+        "type": "integer"
+      },
+      "codec": {
+        "title": "Codec",
+        "type": "string"
+      },
+      "deleted_at": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/UtcTimestamp"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "duration_ms": {
+        "$ref": "#/$defs/SourceTimeMs"
+      },
+      "generation": {
+        "minimum": 1,
+        "title": "Generation",
+        "type": "integer"
+      },
+      "height": {
+        "exclusiveMinimum": 0,
+        "title": "Height",
+        "type": "integer"
+      },
+      "id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "retention_until": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/UtcTimestamp"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "sha256": {
+        "pattern": "^[0-9a-f]{64}$",
+        "title": "Sha256",
+        "type": "string"
+      },
+      "state": {
+        "enum": [
+          "uploading",
+          "ready",
+          "invalid",
+          "deleting",
+          "deleted"
+        ],
+        "title": "State",
+        "type": "string"
+      },
+      "storage_ref": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "width": {
+        "exclusiveMinimum": 0,
+        "title": "Width",
+        "type": "integer"
+      },
+      "workspace_id": {
+        "$ref": "#/$defs/ResourceId"
+      }
+    },
+    "required": [
+      "id",
+      "workspace_id",
+      "byte_size",
+      "codec",
+      "width",
+      "height",
+      "duration_ms",
+      "storage_ref",
+      "sha256",
+      "state",
+      "generation"
+    ],
+    "title": "SourceAsset",
+    "type": "object"
+  },
+  "SourceTimeMs": {
+    "title": "SourceTimeMs",
+    "type": "integer"
+  },
+  "TimeRange": {
+    "$defs": {
+      "SourceTimeMs": {
+        "title": "SourceTimeMs",
+        "type": "integer"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "end_ms": {
+        "$ref": "#/$defs/SourceTimeMs"
+      },
+      "start_ms": {
+        "$ref": "#/$defs/SourceTimeMs"
+      }
+    },
+    "required": [
+      "start_ms",
+      "end_ms"
+    ],
+    "title": "TimeRange",
+    "type": "object"
+  },
+  "TrackObservation": {
+    "$defs": {
+      "BoxN": {
+        "additionalProperties": false,
+        "properties": {
+          "x1": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "X1",
+            "type": "number"
+          },
+          "x2": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "X2",
+            "type": "number"
+          },
+          "y1": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Y1",
+            "type": "number"
+          },
+          "y2": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Y2",
+            "type": "number"
+          }
+        },
+        "required": [
+          "x1",
+          "y1",
+          "x2",
+          "y2"
+        ],
+        "title": "BoxN",
+        "type": "object"
+      },
+      "FrameRef": {
+        "additionalProperties": false,
+        "properties": {
+          "height": {
+            "exclusiveMinimum": 0,
+            "title": "Height",
+            "type": "integer"
+          },
+          "pts": {
+            "title": "Pts",
+            "type": "integer"
+          },
+          "sequence": {
+            "minimum": 0,
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "source_hash": {
+            "minLength": 16,
+            "title": "Source Hash",
+            "type": "string"
+          },
+          "source_id": {
+            "$ref": "#/$defs/ResourceId"
+          },
+          "source_time_ms": {
+            "$ref": "#/$defs/SourceTimeMs"
+          },
+          "time_base_den": {
+            "exclusiveMinimum": 0,
+            "title": "Time Base Den",
+            "type": "integer"
+          },
+          "time_base_num": {
+            "exclusiveMinimum": 0,
+            "title": "Time Base Num",
+            "type": "integer"
+          },
+          "transform_id": {
+            "$ref": "#/$defs/ResourceId"
+          },
+          "width": {
+            "exclusiveMinimum": 0,
+            "title": "Width",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source_id",
+          "source_hash",
+          "pts",
+          "time_base_num",
+          "time_base_den",
+          "source_time_ms",
+          "sequence",
+          "width",
+          "height",
+          "transform_id"
+        ],
+        "title": "FrameRef",
+        "type": "object"
+      },
+      "ObservationQuality": {
+        "additionalProperties": false,
+        "properties": {
+          "flags": {
+            "items": {
+              "$ref": "#/$defs/QualityFlag"
+            },
+            "title": "Flags",
+            "type": "array",
+            "uniqueItems": true
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          }
+        },
+        "title": "ObservationQuality",
+        "type": "object"
+      },
+      "PointN": {
+        "additionalProperties": false,
+        "properties": {
+          "x": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "X",
+            "type": "number"
+          },
+          "y": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Y",
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "title": "PointN",
+        "type": "object"
+      },
+      "QualityFlag": {
+        "enum": [
+          "occluded",
+          "tiny_roi",
+          "timestamp_gap",
+          "predicted_only"
+        ],
+        "title": "QualityFlag",
+        "type": "string"
+      },
+      "ResourceId": {
+        "title": "ResourceId",
+        "type": "string"
+      },
+      "SourceTimeMs": {
+        "title": "SourceTimeMs",
+        "type": "integer"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "anchor": {
+        "$ref": "#/$defs/PointN"
+      },
+      "attempt_id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "box": {
+        "$ref": "#/$defs/BoxN"
+      },
+      "frame_ref": {
+        "$ref": "#/$defs/FrameRef"
+      },
+      "last_observed_ms": {
+        "$ref": "#/$defs/SourceTimeMs"
+      },
+      "observed": {
+        "title": "Observed",
+        "type": "boolean"
+      },
+      "quality": {
+        "$ref": "#/$defs/ObservationQuality"
+      },
+      "track_id": {
+        "title": "Track Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "frame_ref",
+      "attempt_id",
+      "track_id",
+      "observed",
+      "box",
+      "anchor",
+      "last_observed_ms",
+      "quality"
+    ],
+    "title": "TrackObservation",
+    "type": "object"
+  },
+  "UtcTimestamp": {
+    "format": "date-time",
+    "title": "UtcTimestamp",
+    "type": "string"
+  },
+  "VisionApp": {
+    "$defs": {
+      "ResourceId": {
+        "title": "ResourceId",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "draft_version_id": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ResourceId"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "id": {
+        "$ref": "#/$defs/ResourceId"
+      },
+      "published_version_id": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ResourceId"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "revision": {
+        "minimum": 0,
+        "title": "Revision",
+        "type": "integer"
+      },
+      "title": {
+        "title": "Title",
+        "type": "string"
+      },
+      "workspace_id": {
+        "$ref": "#/$defs/ResourceId"
+      }
+    },
+    "required": [
+      "id",
+      "workspace_id",
+      "title",
+      "revision"
+    ],
+    "title": "VisionApp",
+    "type": "object"
+  }
+}

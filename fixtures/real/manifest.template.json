@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "frozen_at": null,
+  "cases": [
+    {
+      "id": "replace-development-video-001",
+      "kind": "video",
+      "fixture_type": "real",
+      "split": "development",
+      "source_id": "stable-recording-id",
+      "camera_group": "stable-camera-id",
+      "provenance": "Describe acquisition without secrets",
+      "rights_record": "replace-rights-id.json",
+      "source_path": "media/authorized-file.mp4",
+      "source_sha256": "REPLACE_WITH_64_HEX_SHA256",
+      "evidence": {
+        "governing_signal_visible": true,
+        "stop_line_visible": true,
+        "approach_lane_visible": true
+      },
+      "truth_intervals": [
+        {"start_ms": 1000, "end_ms": 1200, "uncertainty_ms": 50, "disposition": "positive"}
+      ],
+      "label_review": {"reviewer": "REPLACE_HUMAN_REVIEWER", "reviewed_at": "REPLACE_ISO_8601"}
+    },
+    {
+      "id": "replace-development-prompt-001",
+      "kind": "prompt",
+      "fixture_type": "real",
+      "split": "development",
+      "source_id": "prompt-study-id",
+      "camera_group": "not-applicable",
+      "provenance": "Describe authorized prompt collection",
+      "rights_record": "replace-rights-id.json",
+      "prompt": "REPLACE_WITH_AUTHORIZED_PROMPT",
+      "expected_outcome": "supported",
+      "label_review": {"reviewer": "REPLACE_HUMAN_REVIEWER", "reviewed_at": "REPLACE_ISO_8601"}
+    }
+  ]
+}
