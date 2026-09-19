@@ -11,6 +11,7 @@ jobs:
         with: { version: '10.15.0' }
       - uses: actions/setup-node@v4
         with: { node-version: '20.20.2', cache: pnpm }
-      - run: uv sync --frozen
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: uv sync --frozen --extra vision
       - run: pnpm install --frozen-lockfile
-      - run: uv run python tools/verify.py all --profile ci
+      - run: uv run python tools/verify.py --profile ci all

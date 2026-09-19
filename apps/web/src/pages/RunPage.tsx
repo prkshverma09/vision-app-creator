@@ -30,6 +30,17 @@ const panelStyle: React.CSSProperties = {
   padding: theme.spacing.md,
 }
 
+type RunResultKind = 'findings' | 'uncertain' | 'none' | 'failed'
+
+const resultStyles: Record<RunResultKind, { background: string; border: string; text: string }> = {
+  findings: { background: '#fef2f2', border: theme.colors.danger, text: theme.colors.danger },
+  uncertain: { background: '#fffbeb', border: theme.colors.warning, text: theme.colors.warning },
+  none: { background: '#f0fdf4', border: theme.colors.success, text: theme.colors.success },
+  failed: { background: '#fef2f2', border: theme.colors.danger, text: theme.colors.danger },
+}
+
+const formatSeconds = (ms: number) => `${(ms / 1000).toFixed(1)}s`
+
 export function RunPage({ apiClient, appId, runId }: RunPageProps) {
   const [data, setData] = useState<RunResponse | null>(null)
   const [loadError, setLoadError] = useState('')
@@ -71,6 +82,11 @@ export function RunPage({ apiClient, appId, runId }: RunPageProps) {
     if (video) video.currentTime = ms / 1000
   }
 
+  const jumpToEvent = (event: Event) => {
+    seekToSourceTime(event.source_range.start_ms)
+    setSelectedEventId(event.id)
+  }
+
   const submitReview = async (eventId: string, review: ReviewRequest) => {
     setActionError('')
     try {
@@ -109,6 +125,23 @@ export function RunPage({ apiClient, appId, runId }: RunPageProps) {
   const playbackUrl = run.source?.playback_url ?? run.playback_url
   const selectedEvent = events.find((event) => event.id === selectedEventId) ?? null
 
+  const findings = events.filter((event) => event.machine_decision === 'supported' || event.machine_decision === 'candidate')
+  const uncertain = events.filter((event) => event.machine_decision === 'inconclusive')
+  const resultKind: RunResultKind | null = failed ? 'failed'
+    : run.status !== 'succeeded' ? null
+    : findings.length > 0 ? 'findings'
+    : uncertain.length > 0 ? 'uncertain'
+    : 'none'
+  const resultStyle = resultKind ? resultStyles[resultKind] : null
+  const resultTitle = resultKind === 'findings'
+    ? `${findings.length} finding${findings.length === 1 ? '' : 's'}`
+    : resultKind === 'uncertain' ? 'Needs review'
+    : resultKind === 'none' ? 'No matches'
+    : resultKind === 'failed' ? (run.status === 'cancelled' ? 'Run cancelled' : 'Run failed')
+    : ''
+  const sourceDurationMs = run.source?.duration_ms
+    ?? events.reduce((max, event) => Math.max(max, event.source_range.end_ms), 0)
+
   return (
     <div>
       <p>
@@ -124,9 +157,62 @@ export function RunPage({ apiClient, appId, runId }: RunPageProps) {
         <p>App: {run.app_id} · Published version: {run.version_id ?? 'Unknown'} · Source: {run.asset_id ?? run.source?.asset_id ?? 'Unknown'}{run.is_seed_run ? ' · Seed video' : ''}</p>
         {run.calibration_id && <p>Calibration: {run.calibration_id}</p>}
       </details>
-      {active && <p>Analysis is in progress. Results will update automatically; no final conclusions are available yet.</p>}
-      {failed && <p role="alert">{run.status === 'failed' ? 'Analysis failed.' : 'Analysis was cancelled.'} {run.failure_reason ?? 'No completed analysis is available. Return to the workspace to try again.'}</p>}
-      {run.status === 'succeeded' && events.length === 0 && <p>No matching observations were returned for this video. This does not prove that the conditions never occurred; consider video coverage and model limitations.</p>}
+
+      {resultKind && resultStyle && (
+        <section
+          aria-label="Run result"
+          data-result={resultKind}
+          style={{
+            border: `2px solid ${resultStyle.border}`,
+            borderRadius: theme.radii.md,
+            backgroundColor: resultStyle.background,
+            padding: theme.spacing.md,
+            marginBottom: theme.spacing.md,
+          }}
+        >
+          <h3 style={{ margin: 0, color: resultStyle.text }}>{resultTitle}</h3>
+          {resultKind === 'none' && <p style={{ marginBottom: 0 }}>No matching observations were returned for this video.</p>}
+          {resultKind === 'uncertain' && <p style={{ marginBottom: 0 }}>{uncertain.length} uncertain observation{uncertain.length === 1 ? '' : 's'} need a human decision.</p>}
+          {resultKind === 'failed' && <p role="alert" style={{ marginBottom: 0 }}>{run.status === 'failed' ? 'Analysis failed.' : 'Analysis was cancelled.'} {run.failure_reason ?? 'No completed analysis is available. Return to the workspace to try again.'}</p>}
+          {events.length > 0 && (
+            <div
+              aria-label="Findings timeline"
+              style={{ position: 'relative', height: '28px', marginTop: theme.spacing.sm, backgroundColor: theme.colors.surface, borderRadius: theme.radii.full, border: `1px solid ${theme.colors.surfaceBorder}` }}
+            >
+              {events.map((event) => {
+                const fraction = sourceDurationMs > 0 ? Math.min(1, Math.max(0, event.source_range.start_ms / sourceDurationMs)) : 0
+                const markerColor = event.machine_decision === 'inconclusive' ? theme.colors.warning
+                  : event.machine_decision === 'rejected' ? theme.colors.secondary
+                  : theme.colors.danger
+                return (
+                  <button
+                    key={event.id}
+                    type="button"
+                    aria-label={`Jump to finding at ${formatSeconds(event.source_range.start_ms)}`}
+                    title={`${formatSeconds(event.source_range.start_ms)} – ${formatSeconds(event.source_range.end_ms)}`}
+                    onClick={() => jumpToEvent(event)}
+                    style={{
+                      position: 'absolute',
+                      left: `calc(${fraction * 100}% - 8px)`,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      width: '16px',
+                      height: '16px',
+                      borderRadius: theme.radii.full,
+                      border: `2px solid ${theme.colors.surface}`,
+                      backgroundColor: markerColor,
+                      cursor: 'pointer',
+                      padding: 0,
+                    }}
+                  />
+                )
+              })}
+            </div>
+          )}
+        </section>
+      )}
+
+      {active && <p>Analysis in progress…</p>}
       {run.coverage_note && <p role="note">{run.coverage_note}</p>}
       {actionError && <p role="alert">{actionError}</p>}
 

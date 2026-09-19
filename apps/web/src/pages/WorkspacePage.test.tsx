@@ -73,7 +73,7 @@ describe('WorkspacePage', () => {
 
   afterEach(() => vi.unstubAllGlobals())
 
-  it('uploads the seed before the first prompt and requires live processing consent', async () => {
+  it('uploads the seed before the first prompt and sends live processing consent without a dialog', async () => {
     const user = userEvent.setup()
     const fetchMock = vi.fn(mockFetchRouter({
       ...happyPathRoutes(),
@@ -94,7 +94,7 @@ describe('WorkspacePage', () => {
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
     expect(window.confirm).not.toHaveBeenCalled()
     await user.click(screen.getByRole('button', { name: 'Send' }))
-    expect(window.confirm).toHaveBeenCalledWith(expect.stringContaining('Google'))
+    expect(window.confirm).not.toHaveBeenCalled()
     await user.click(await screen.findByRole('button', { name: 'Accept proposal' }))
 
     expect(await screen.findByText('Published version: ver-1')).toBeInTheDocument()
@@ -128,7 +128,7 @@ describe('WorkspacePage', () => {
     expect(screen.queryByRole('textbox', { name: 'Message' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Start run' })).toBeEnabled()
     await user.click(screen.getByRole('button', { name: 'Start run' }))
-    expect(window.confirm).toHaveBeenCalledTimes(1)
+    expect(window.confirm).not.toHaveBeenCalled()
     await waitFor(() => expect(window.location.hash).toBe('#/app/app-1/run/run-1'))
     expect(fetchMock).toHaveBeenCalledWith('/v1/apps/app-1/source', expect.objectContaining({ body: JSON.stringify({ asset_id: 'asset-2' }) }))
     expect(fetchMock).toHaveBeenCalledWith('/v1/apps/app-1/runs', expect.objectContaining({ body: JSON.stringify({ confirm_external_processing: true }) }))
@@ -147,7 +147,7 @@ describe('WorkspacePage', () => {
     const seedButton = await screen.findByRole('button', { name: 'Run on seed video' })
     expect(seedButton).toBeEnabled()
     await user.click(seedButton)
-    expect(window.confirm).toHaveBeenCalledTimes(1)
+    expect(window.confirm).not.toHaveBeenCalled()
     await waitFor(() => expect(window.location.hash).toBe('#/app/app-1/run/seed-run'))
     expect(fetchMock).toHaveBeenCalledWith('/v1/apps/app-1/runs', expect.objectContaining({ body: JSON.stringify({ confirm_external_processing: true, asset_id: 'asset-1' }) }))
     expect(fetchMock.mock.calls.some(([path]) => String(path).endsWith('/source'))).toBe(false)
@@ -186,7 +186,7 @@ describe('WorkspacePage', () => {
     expect(screen.queryByRole('link', { name: 'Run other-run' })).not.toBeInTheDocument()
   })
 
-  it('requires consent on live clarifications and includes confirmation in the request', async () => {
+  it('sends live clarifications without a consent dialog', async () => {
     const user = userEvent.setup()
     const fetchMock = vi.fn(mockFetchRouter({
       'GET /v1/runtime': liveRuntime,
@@ -200,7 +200,7 @@ describe('WorkspacePage', () => {
     await user.click(screen.getByRole('button', { name: 'Send' }))
     await user.type(await screen.findByLabelText('Which exit?'), 'The rear exit')
     await user.click(screen.getByRole('button', { name: 'Submit clarification' }))
-    expect(window.confirm).toHaveBeenCalledTimes(1)
+    expect(window.confirm).not.toHaveBeenCalled()
     expect(await screen.findByRole('button', { name: 'Accept proposal' })).toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledWith('/v1/apps/app-1/clarifications', expect.objectContaining({ body: JSON.stringify({ answers: ['The rear exit'], confirm_external_processing: true }) }))
   })
@@ -248,19 +248,20 @@ describe('WorkspacePage', () => {
     expect(window.location.hash).toBe('#/app/app-1')
   })
 
-  it('does not send a prompt when processing confirmation is declined', async () => {
-    vi.mocked(window.confirm).mockReturnValue(false)
+  it('sends the prompt without a consent dialog on a live workspace', async () => {
     const fetchMock = vi.fn(mockFetchRouter({
       'GET /v1/runtime': liveRuntime,
       'GET /v1/apps/app-1': { ...draftApp, source: sourcedApp.source, analysis_mode: 'gemini' },
+      'POST /v1/apps/app-1/turns': { reply: 'Ready.', outcome: { kind: 'proposed_version', version: semanticApp.spec } },
     }))
     vi.stubGlobal('fetch', fetchMock)
     render(<WorkspacePage apiClient={apiClient} appId="app-1" />)
     await userEvent.type(await screen.findByRole('textbox', { name: 'Message' }), 'Find cars')
     await userEvent.click(screen.getByRole('button', { name: 'Send' }))
-    expect(window.confirm).toHaveBeenCalledTimes(1)
-    expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'POST')).toBe(false)
-    expect(screen.getByRole('textbox', { name: 'Message' })).toHaveValue('Find cars')
+    expect(window.confirm).not.toHaveBeenCalled()
+    expect(await screen.findByRole('button', { name: 'Accept proposal' })).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledWith('/v1/apps/app-1/turns', expect.objectContaining({ body: JSON.stringify({ message: 'Find cars', confirm_external_processing: true }) }))
+    expect(screen.getByRole('textbox', { name: 'Message' })).toHaveValue('')
   })
 
   it('shows a loading state, then renders the workspace panels', async () => {
