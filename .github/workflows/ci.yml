@@ -13,4 +13,4 @@ jobs:
         with: { node-version: '20.20.2', cache: pnpm }
       - run: uv sync --frozen
       - run: pnpm install --frozen-lockfile
-      - run: uv run python tools/verify.py all --profile ci
+      - run: uv run python tools/verify.py --profile ci all
