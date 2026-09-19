@@ -220,7 +220,7 @@ export function RunPage({ apiClient, appId, runId }: RunPageProps) {
               <EvidenceViewer evidence={selectedEvent.evidence} onSeekToSourceTime={seekToSourceTime} />
             </>
           ) : (
-            <p>Select an event to inspect evidence and review.</p>
+            <p>Select an event to inspect its evidence.</p>
           )}
         </section>
 
