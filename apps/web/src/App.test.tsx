@@ -48,8 +48,8 @@ describe('App', () => {
     stubFetch({ 'GET /v1/runs/run-1': succeededRun })
     render(<App />)
 
-    expect(await screen.findByText(/run succeeded/i)).toBeInTheDocument()
-    expect(screen.getByTestId('event-card-ev-1')).toBeInTheDocument()
+    expect(await screen.findByLabelText('Run result')).toHaveTextContent('Demo only: this video has not been analyzed.')
+    expect(screen.queryByTestId('event-card-ev-1')).not.toBeInTheDocument()
   })
 
   it('shows the global error boundary fallback when a page crashes', async () => {

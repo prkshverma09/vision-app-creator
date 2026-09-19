@@ -1,11 +1,17 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createApiClient } from '../client'
+import { trackedRulesSpec } from '../features/chat/test-fixtures'
 import { RunPage } from './RunPage'
+import type { RunResponse } from './types'
 import { jsonResponse, mockFetchRouter, sampleEvent, succeededRun } from './workspace-test-fixtures'
 
 const apiClient = createApiClient({ getToken: async () => 'test-token' })
+const analyzedRun: RunResponse = {
+  ...succeededRun,
+  run: { ...succeededRun.run, analysis_mode: 'gemini', analysis_complete: true, spec: trackedRulesSpec },
+}
 
 describe('RunPage', () => {
   beforeEach(() => {
@@ -28,16 +34,13 @@ describe('RunPage', () => {
     }))
     vi.stubGlobal('fetch', fetchMock)
     await act(async () => { render(<RunPage apiClient={apiClient} appId="app-1" runId="run-1" />) })
-    expect(screen.getByText('Run queued')).toBeInTheDocument()
-    expect(screen.queryByText(/No matching observations/)).not.toBeInTheDocument()
-    expect(screen.queryByText('Total: 0')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Run result')).toHaveTextContent('Analyzing your video…')
+    expect(screen.queryByText(/No matching activity/)).not.toBeInTheDocument()
     await act(async () => { await vi.advanceTimersByTimeAsync(1000) })
-    expect(screen.getByText('Run running')).toBeInTheDocument()
+    expect(screen.getByLabelText('Run result')).toHaveTextContent('Analyzing your video…')
     await act(async () => { await vi.advanceTimersByTimeAsync(1000) })
-    expect(screen.getByText('Run succeeded')).toBeInTheDocument()
-    expect(screen.getByText(/No matching observations/)).toBeInTheDocument()
-    expect(screen.getByText(/AI findings may be inaccurate/).closest('details')).not.toHaveAttribute('open')
-    expect(screen.getByText(/Published version: ver-1 · Source: asset-2/)).toBeInTheDocument()
+    expect(screen.getByLabelText('Run result')).toHaveTextContent('No matching activity was detected in this video.')
+    expect(screen.queryByText(/Published version/)).not.toBeInTheDocument()
     await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
     expect(fetchMock).toHaveBeenCalledTimes(3)
   })
@@ -54,9 +57,9 @@ describe('RunPage', () => {
     vi.stubGlobal('fetch', fetchMock)
     await act(async () => { render(<RunPage apiClient={apiClient} appId="app-1" runId="run-1" />) })
     await act(async () => { await vi.advanceTimersByTimeAsync(1000) })
-    expect(screen.getByRole('alert')).toHaveTextContent('Provider rejected this video')
-    expect(screen.queryByText(/No matching observations/)).not.toBeInTheDocument()
-    expect(screen.queryByText('Total: 0')).not.toBeInTheDocument()
+    expect(screen.getByRole('alert')).toHaveTextContent('The video could not be analyzed')
+    expect(screen.getByText('Provider rejected this video').closest('details')).not.toHaveAttribute('open')
+    expect(screen.queryByText(/No matching activity/)).not.toBeInTheDocument()
     await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
     expect(fetchMock).toHaveBeenCalledTimes(2)
   })
@@ -106,40 +109,87 @@ describe('RunPage', () => {
     })))
     render(<RunPage apiClient={apiClient} appId="app-1" runId="run-1" />)
     expect(await screen.findByRole('alert')).toHaveTextContent('Analysis was cancelled')
-    expect(screen.queryByText(/No matching observations/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/No matching activity/)).not.toBeInTheDocument()
   })
 
-  it('shows a visual finding summary and clickable timeline that seeks playback', async () => {
-    vi.stubGlobal('fetch', vi.fn(mockFetchRouter({ 'GET /v1/runs/run-1': succeededRun })))
+  it('shows one plain sentence with source playback and no result panels or technical metadata', async () => {
+    vi.stubGlobal('fetch', vi.fn(mockFetchRouter({ 'GET /v1/runs/run-1': analyzedRun })))
     render(<RunPage apiClient={apiClient} appId="app-1" runId="run-1" />)
-    const summary = await screen.findByRole('region', { name: 'Run result' })
-    expect(summary).toHaveTextContent('1 finding')
-    expect(summary).toHaveAttribute('data-result', 'findings')
-    const marker = screen.getByRole('button', { name: /Jump to finding/ })
-    await userEvent.click(marker)
-    const video = screen.getByLabelText('Run source video') as HTMLVideoElement
-    expect(video.currentTime).toBe(sampleEvent.source_range.start_ms / 1000)
-    expect(screen.getByTestId('event-card-ev-1')).toHaveAttribute('aria-selected', 'true')
+    const summary = await screen.findByLabelText('Run result')
+    expect(summary.tagName).toBe('P')
+    expect(summary).toHaveTextContent('A vehicle crossed the stop line while the light was red.')
+    expect(screen.getByLabelText('Run source video')).toHaveAttribute('src', 'blob:fixture-video')
+    expect(screen.queryByRole('button', { name: 'Next frame' })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '← App' })).toHaveAttribute('href', '#/app/app-1/use')
+    expect(screen.queryByLabelText('Findings timeline')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Detected events')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Event detail')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('event-card-ev-1')).not.toBeInTheDocument()
+    expect(screen.queryByText(/Run run-1|Rule:|Tracks:|Revision|supported/)).not.toBeInTheDocument()
   })
 
-  it('distinguishes an inconclusive result from a successful no-match result', async () => {
-    vi.stubGlobal('fetch', vi.fn(mockFetchRouter({ 'GET /v1/runs/run-1': {
-      ...succeededRun, events: [{ ...sampleEvent, machine_decision: 'inconclusive' }],
-    } })))
+  it.each<{ name: string; data: RunResponse; expected: string }>([
+    {
+      name: 'completed negative',
+      data: { ...analyzedRun, events: [] },
+      expected: 'No red-light violations were detected in this video.',
+    },
+    {
+      name: 'rejected observation',
+      data: { ...analyzedRun, events: [{ ...sampleEvent, machine_decision: 'rejected' }] },
+      expected: 'No red-light violations were detected in this video.',
+    },
+    {
+      name: 'inconclusive observation',
+      data: { ...analyzedRun, events: [{ ...sampleEvent, machine_decision: 'inconclusive' }] },
+      expected: 'The video is inconclusive — the app could not determine whether the activity occurred.',
+    },
+    {
+      name: 'candidate description from Gemini',
+      data: { ...analyzedRun, events: [{ ...sampleEvent, machine_decision: 'candidate', facts: {
+        description: 'A white car crossed the yellow line while the light was red. The car continued forward.',
+      } }] },
+      expected: 'Possible match: A white car crossed the yellow line while the light was red.',
+    },
+    {
+      name: 'a different app without a description',
+      data: { ...analyzedRun, run: { ...analyzedRun.run, spec: undefined }, events: [sampleEvent] },
+      expected: 'Matching activity was detected in this video.',
+    },
+    {
+      name: 'a different app with a description',
+      data: { ...analyzedRun, events: [{ ...sampleEvent, facts: { description: 'Smoke is visible near the door' } }] },
+      expected: 'Smoke is visible near the door.',
+    },
+    {
+      name: 'a different app with no findings',
+      data: { ...analyzedRun, run: { ...analyzedRun.run, spec: undefined }, events: [] },
+      expected: 'No matching activity was detected in this video.',
+    },
+    {
+      name: 'a partial run with no findings',
+      data: { ...analyzedRun, run: { ...analyzedRun.run, analysis_complete: false }, events: [] },
+      expected: 'Only part of the video was analyzed — no complete result is available.',
+    },
+    {
+      name: 'a partial run with findings',
+      data: { ...analyzedRun, run: { ...analyzedRun.run, analysis_complete: false } },
+      expected: 'Only part of the video was analyzed — no complete result is available.',
+    },
+    {
+      name: 'scripted positive fixture',
+      data: { ...analyzedRun, run: { ...analyzedRun.run, analysis_mode: 'scripted' } },
+      expected: 'Demo only: this video has not been analyzed.',
+    },
+    {
+      name: 'scripted negative fixture',
+      data: { ...analyzedRun, run: { ...analyzedRun.run, analysis_mode: 'scripted' }, events: [] },
+      expected: 'Demo only: this video has not been analyzed.',
+    },
+  ])('reports $name honestly', async ({ data, expected }) => {
+    vi.stubGlobal('fetch', vi.fn(mockFetchRouter({ 'GET /v1/runs/run-1': data })))
     render(<RunPage apiClient={apiClient} appId="app-1" runId="run-1" />)
-    const summary = await screen.findByRole('region', { name: 'Run result' })
-    expect(summary).toHaveAttribute('data-result', 'uncertain')
-    expect(summary).toHaveTextContent('Needs review')
-    expect(screen.queryByRole('heading', { name: 'No matches' })).not.toBeInTheDocument()
-  })
-
-  it('loads the run and lists events for the selected attempt', async () => {
-    vi.stubGlobal('fetch', vi.fn(mockFetchRouter({ 'GET /v1/runs/run-1': succeededRun })))
-    render(<RunPage apiClient={apiClient} appId="app-1" runId="run-1" />)
-
-    expect(await screen.findByText(/run succeeded/i)).toBeInTheDocument()
-    expect(screen.getByTestId('event-card-ev-1')).toBeInTheDocument()
-    expect(screen.getByLabelText('Run result')).toBeInTheDocument()
+    expect(await screen.findByLabelText('Run result')).toHaveTextContent(expected)
   })
 
   it('shows an error alert when the run cannot be fetched', async () => {
@@ -154,14 +204,15 @@ describe('RunPage', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Run run-1 does not exist.')
   })
 
-  it('selects an event and shows its evidence', async () => {
+  it('retries a failed request and displays the result', async () => {
     const user = userEvent.setup()
-    vi.stubGlobal('fetch', vi.fn(mockFetchRouter({ 'GET /v1/runs/run-1': succeededRun })))
+    const fetchMock = vi.fn()
+      .mockRejectedValueOnce(new Error('Network unavailable'))
+      .mockResolvedValueOnce(jsonResponse(analyzedRun))
+    vi.stubGlobal('fetch', fetchMock)
     render(<RunPage apiClient={apiClient} appId="app-1" runId="run-1" />)
-
-    await user.click(await screen.findByTestId('event-card-ev-1'))
-    expect(await screen.findByText('clip clip-1')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /approve|reject/i })).not.toBeInTheDocument()
+    await user.click(await screen.findByRole('button', { name: 'Retry' }))
+    expect(await screen.findByLabelText('Run result')).toHaveTextContent('A vehicle crossed the stop line')
   })
 
   it('shows a processing status while the run is not finished', async () => {
@@ -173,6 +224,6 @@ describe('RunPage', () => {
     })))
     render(<RunPage apiClient={apiClient} appId="app-1" runId="run-1" />)
 
-    expect(await screen.findByText(/run running/i)).toBeInTheDocument()
+    expect(await screen.findByLabelText('Run result')).toHaveTextContent('Analyzing your video…')
   })
 })

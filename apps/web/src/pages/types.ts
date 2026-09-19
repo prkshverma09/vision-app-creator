@@ -50,6 +50,8 @@ export interface RunDetail {
   calibration_id?: string | null
   is_seed_run?: boolean
   analysis_mode?: 'scripted' | 'gemini'
+  analysis_complete?: boolean
+  spec?: AppSpec
   source?: WorkspaceSource | null
   failure_reason?: string | null
   progress?: unknown[] | null
