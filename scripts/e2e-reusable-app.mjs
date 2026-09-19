@@ -127,16 +127,6 @@ export async function runReusableAcceptance(page, options = {}) {
     }
     return result
   }
-  const start = async (appId, label) => {
-    await authorize()
-    const started = postResponse(page, `/v1/apps/${appId}/runs`)
-    await page.getByRole('button', { name: 'Run app', exact: true }).click()
-    const { run_id: runId } = await responseJSON(await started)
-    await expect(page).toHaveURL(new RegExp(`/run/${runId}$`))
-    const result = await inspectResults(runId, label)
-    report.runs.push(result)
-    return result
-  }
   const runNewVideo = async (path, label, appId, needsCalibration) => {
     await authorize()
     const attached = postResponse(page, `/v1/apps/${appId}/source`)
@@ -193,13 +183,17 @@ export async function runReusableAcceptance(page, options = {}) {
     await calibrateIfNeeded(definition, 'seed', appId)
     await page.getByRole('button', { name: 'Run app', exact: true }).click()
     await expect(page).toHaveURL(new RegExp(`#/app/${appId}/use$`))
-    const first = await start(appId, 'seed')
-    expect(first.run.asset_id).toBe(seedApp.source.asset_id)
-    expect(first.run.is_seed_run).toBe(true)
+    await expect(page.getByRole('heading', { name: 'Upload source video' })).toBeVisible()
+    await expect(page.locator('video')).toHaveCount(0)
+    const needsCalibration = definition.requires_calibration ?? definition.spec?.kind !== 'semantic_windows'
+    const { result: first } = await runNewVideo(seedPath, 'first', appId, needsCalibration)
+    expect(first.run.asset_id).not.toBe(seedApp.source.asset_id)
+    expect(first.run.is_seed_run).toBe(false)
     expect(first.run.version_id).toBeTruthy()
     await page.getByRole('link', { name: '← App' }).click()
     await expect(page).toHaveURL(new RegExp(`#/app/${appId}/use$`))
-    const needsCalibration = definition.requires_calibration ?? definition.spec?.kind !== 'semantic_windows'
+    await expect(page.getByRole('heading', { name: 'Upload source video' })).toBeVisible()
+    await expect(page.locator('video')).toHaveCount(0)
     const { app: secondApp, result: second } = await runNewVideo(secondPath, 'second', appId, needsCalibration)
     expect(secondApp.id).toBe(appId)
     expect(secondApp.seed_asset_id).toBe(seedApp.source.asset_id)
@@ -216,6 +210,8 @@ export async function runReusableAcceptance(page, options = {}) {
     await page.getByRole('link', { name: '← App' }).click()
     await expect(page.getByRole('heading', { name: 'Run history', exact: true })).toBeVisible()
     await page.reload()
+    await expect(page.getByRole('heading', { name: 'Upload source video' })).toBeVisible()
+    await expect(page.locator('video')).toHaveCount(0)
     for (const result of [first, second]) {
       const link = page.getByRole('link', { name: `Run ${result.run.id}`, exact: true })
       await expect(link.locator('..')).toContainText(result.run.asset_id)

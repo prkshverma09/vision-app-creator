@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { ApiError, type ApiClient } from '../client'
 import { UploadPanel, type DirectUploader, type SourceMetadata } from '../features/upload'
-import { STANDARD_GEOMETRIES, VideoPlayer } from '../features/video'
+import { STANDARD_GEOMETRIES } from '../features/video'
 import { Button, Loading } from '../ui'
 import { navigate } from './router'
 import type { AppDetail, RunDetail, RuntimeInfo } from './types'
@@ -23,10 +23,14 @@ export function UseAppPage({ apiClient, appId, uploader }: UseAppPageProps) {
   const [actionError, setActionError] = useState('')
   const [busy, setBusy] = useState(false)
   const [runs, setRuns] = useState<RunDetail[]>([])
+  const [selectedSource, setSelectedSource] = useState<SourceMetadata | null>(null)
 
   const load = useCallback(async () => {
     setLoadError('')
     setApp(null)
+    setSelectedSource(null)
+    setActionError('')
+    setBusy(false)
     try {
       const [detail, info, history] = await Promise.all([
         apiClient.get<AppDetail>(`/v1/apps/${appId}`),
@@ -53,33 +57,25 @@ export function UseAppPage({ apiClient, appId, uploader }: UseAppPageProps) {
   const processingAllowed = !live || runtime?.configured !== false
   const requiresCalibration = Boolean(app && (app.requires_calibration ?? app.spec?.kind !== 'semantic_windows'))
 
-  const startRun = async () => {
-    const response = await apiClient.post<{ run_id: string }>(`/v1/apps/${appId}/runs`, consentBody)
-    navigate({ name: 'run', appId, runId: response.run_id })
-  }
-
   const onSourceReady = async (source: SourceMetadata) => {
-    if (busy) return
+    if (busy || !app?.published_version_id) return
     setBusy(true)
+    setSelectedSource(source)
     setActionError('')
     try {
       await apiClient.post<AppDetail>(`/v1/apps/${appId}/source`, { asset_id: source.asset_id })
+      let calibrationId: string | null = null
       if (requiresCalibration) {
-        await apiClient.post<{ calibration_id: string }>(`/v1/apps/${appId}/calibrations`, { geometries: STANDARD_GEOMETRIES })
+        const calibration = await apiClient.post<{ calibration_id: string }>(`/v1/apps/${appId}/calibrations`, { geometries: STANDARD_GEOMETRIES })
+        calibrationId = calibration.calibration_id
       }
-      await startRun()
-    } catch (error) {
-      setActionError(messageText(error))
-      setBusy(false)
-    }
-  }
-
-  const runCurrentSource = async () => {
-    if (busy || !app?.source) return
-    setBusy(true)
-    setActionError('')
-    try {
-      await startRun()
+      const response = await apiClient.post<{ run_id: string }>(`/v1/apps/${appId}/runs`, {
+        ...consentBody,
+        asset_id: source.asset_id,
+        version_id: app.published_version_id,
+        calibration_id: calibrationId,
+      })
+      navigate({ name: 'run', appId, runId: response.run_id })
     } catch (error) {
       setActionError(messageText(error))
       setBusy(false)
@@ -105,23 +101,23 @@ export function UseAppPage({ apiClient, appId, uploader }: UseAppPageProps) {
       <h2>{app.spec?.title ?? app.name}</h2>
       {!live && <p>Demo · Scripted results</p>}
       {live && runtime?.configured === false && <p role="alert">Model processing is not configured on the server.</p>}
-      {actionError && <p role="alert">{actionError}</p>}
+      {actionError && (
+        <div role="alert">
+          <p>{actionError}</p>
+          {selectedSource && (
+            <Button type="button" disabled={busy || !processingAllowed} onClick={() => void onSourceReady(selectedSource)}>
+              Retry run
+            </Button>
+          )}
+        </div>
+      )}
 
       {!app.published_version_id ? (
         <p>The app is not published yet. Finish building it in the workspace first.</p>
       ) : (
         <>
-          <h3>Upload a video</h3>
           <UploadPanel apiClient={apiClient} uploader={uploader} onReady={onSourceReady} maxBytes={runtime?.limits.max_bytes} />
           {busy && <p role="status">Analyzing video…</p>}
-          {app.source?.playback_url && (
-            <section aria-label="Current video">
-              <VideoPlayer src={app.source.playback_url} ariaLabel="Current source video" />
-              <Button type="button" disabled={busy || !processingAllowed} onClick={() => void runCurrentSource()}>
-                {busy ? 'Analyzing…' : 'Run app'}
-              </Button>
-            </section>
-          )}
           <section aria-label="Run history">
             <h3>Run history</h3>
             {runs.length === 0 ? <p>No runs yet.</p> : (

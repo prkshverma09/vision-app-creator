@@ -49,7 +49,9 @@ async function runApp(page: Page) {
   await calibrate(page)
   await page.getByRole('button', { name: 'Run app' }).click()
   await expect(page).toHaveURL(/#\/app\/app-e2e\/use$/)
-  await page.getByRole('button', { name: 'Run app' }).click()
+  await expect(page.getByRole('heading', { name: 'Upload source video' })).toBeVisible()
+  await expect(page.locator('video')).toHaveCount(0)
+  await page.locator('input[type=file]').setInputFiles(seedVideo)
   await expect(page.getByLabel('Run result')).toHaveAttribute('data-status', 'succeeded')
   await expect(page.getByLabel('Run result')).toHaveText('Demo only: this video has not been analyzed.')
 }

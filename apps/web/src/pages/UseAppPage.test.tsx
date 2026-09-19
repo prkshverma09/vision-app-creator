@@ -9,6 +9,7 @@ import {
   calibratedApp,
   draftApp,
   liveRuntime,
+  jsonResponse,
   mockFetchRouter,
   semanticApp,
   sourcedApp,
@@ -60,21 +61,23 @@ describe('UseAppPage', () => {
 
   afterEach(() => vi.unstubAllGlobals())
 
-  it('runs the attached source without re-uploading', async () => {
-    const user = userEvent.setup()
+  it('starts empty even when a seed or previous run video is attached', async () => {
     const fetchMock = vi.fn(mockFetchRouter({
       'GET /v1/runtime': liveRuntime,
       'GET /v1/apps/app-1': semanticApp,
-      'GET /v1/apps/app-1/runs': { runs: [] },
-      'POST /v1/apps/app-1/runs': { run_id: 'run-9' },
+      'GET /v1/apps/app-1/runs': { runs: [
+        { id: 'previous', app_id: 'app-1', status: 'succeeded', asset_id: 'asset-1' },
+      ] },
     }))
     vi.stubGlobal('fetch', fetchMock)
-    render(<UseAppPage apiClient={apiClient} appId="app-1" />)
+    const { container } = render(<UseAppPage apiClient={apiClient} appId="app-1" />)
 
-    await user.click(await screen.findByRole('button', { name: 'Run app' }))
-    await waitFor(() => expect(window.location.hash).toBe('#/app/app-1/run/run-9'))
-    expect(fetchMock).toHaveBeenCalledWith('/v1/apps/app-1/runs', expect.objectContaining({ body: JSON.stringify({ confirm_external_processing: true }) }))
-    expect(fetchMock.mock.calls.some(([path]) => String(path).endsWith('/source'))).toBe(false)
+    expect(await screen.findByLabelText(/choose an mp4 video/i)).toHaveValue('')
+    expect(container.querySelector('video')).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Run app' })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Run previous' })).toBeInTheDocument()
+    expect(fetchMock.mock.calls.every(([, init]) => init?.method === 'GET')).toBe(true)
+    expect(window.location.hash).toBe('#/app/app-1/use')
     expect(window.confirm).not.toHaveBeenCalled()
   })
 
@@ -93,11 +96,49 @@ describe('UseAppPage', () => {
     await waitFor(() => expect(window.location.hash).toBe('#/app/app-1/run/run-1'))
     expect(fetchMock).toHaveBeenCalledWith('/v1/apps/app-1/source', expect.objectContaining({ body: JSON.stringify({ asset_id: 'asset-2' }) }))
     expect(fetchMock).toHaveBeenCalledWith('/v1/apps/app-1/calibrations', expect.objectContaining({ body: JSON.stringify({ geometries: STANDARD_GEOMETRIES }) }))
-    expect(fetchMock).toHaveBeenCalledWith('/v1/apps/app-1/runs', expect.objectContaining({ body: JSON.stringify({ confirm_external_processing: true }) }))
+    expect(fetchMock).toHaveBeenCalledWith('/v1/apps/app-1/runs', expect.objectContaining({
+      body: JSON.stringify({ confirm_external_processing: true, asset_id: 'asset-2', version_id: 'ver-1', calibration_id: 'cal-2' }),
+    }))
     const posts = fetchMock.mock.calls.filter(([, init]) => init?.method === 'POST').map(([path]) => String(path))
     expect(posts.indexOf('/v1/apps/app-1/source')).toBeLessThan(posts.indexOf('/v1/apps/app-1/calibrations'))
     expect(posts.indexOf('/v1/apps/app-1/calibrations')).toBeLessThan(posts.indexOf('/v1/apps/app-1/runs'))
     expect(window.confirm).not.toHaveBeenCalled()
+  })
+
+  it('retries the newly uploaded video after a run-start failure without using the old source', async () => {
+    const user = userEvent.setup()
+    const startRun = vi.fn()
+      .mockResolvedValueOnce(jsonResponse({ message: 'Please retry analysis.' }, 503))
+      .mockResolvedValueOnce(jsonResponse({ run_id: 'run-retry' }))
+    const fetchMock = vi.fn(mockFetchRouter({
+      'GET /v1/runtime': liveRuntime,
+      'GET /v1/apps/app-1': semanticApp,
+      'GET /v1/apps/app-1/runs': { runs: [] },
+      ...uploadRoutes(),
+      'POST /v1/apps/app-1/runs': startRun,
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+    const firstVisit = render(<UseAppPage apiClient={apiClient} appId="app-1" uploader={instantUploader} />)
+
+    await user.upload(await screen.findByLabelText(/choose an mp4 video/i), videoFile())
+    expect(await screen.findByRole('alert')).toHaveTextContent('Please retry analysis.')
+    expect(screen.getByLabelText('Source video preview')).toHaveAttribute('src', 'blob:fixture-video')
+    await user.click(screen.getByRole('button', { name: 'Retry run' }))
+    await waitFor(() => expect(window.location.hash).toBe('#/app/app-1/run/run-retry'))
+    expect(startRun).toHaveBeenCalledTimes(2)
+    for (const [init] of startRun.mock.calls) {
+      expect(JSON.parse(init.body)).toEqual({
+        confirm_external_processing: true, asset_id: 'asset-2', version_id: semanticApp.published_version_id, calibration_id: null,
+      })
+    }
+    expect(fetchMock.mock.calls.some(([path]) => String(path).endsWith('/calibrations'))).toBe(false)
+
+    firstVisit.unmount()
+    const nextVisit = render(<UseAppPage apiClient={apiClient} appId="app-1" uploader={instantUploader} />)
+    expect(await screen.findByLabelText(/choose an mp4 video/i)).toHaveValue('')
+    expect(nextVisit.container.querySelector('video')).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Retry run' })).not.toBeInTheDocument()
+    expect(startRun).toHaveBeenCalledTimes(2)
   })
 
   it('shows run history with each source and version under the correct app', async () => {

@@ -19,6 +19,48 @@ SPEC = {
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("published", [False, True])
+async def test_app_deletion_is_authorized_and_persists(tmp_path: Path, published: bool):
+    app = create_app("local", {"data_dir": tmp_path})
+    private_app = await app.state.v1_dependencies.app_service.create("workspace-other", "Private")
+    await seed_asset(app, "shared-source")
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as client:
+        deleted = (await client.post("/v1/apps", json={"name": "Delete me"})).json()
+        kept = (await client.post("/v1/apps", json={"name": "Keep me"})).json()
+        for saved in [deleted, kept]:
+            attached = await client.post(f"/v1/apps/{saved['id']}/source", json={"asset_id": "shared-source"})
+            assert attached.status_code == 200
+        if published:
+            response = await client.post(f"/v1/apps/{deleted['id']}/versions", json={"spec": SPEC})
+            assert response.status_code == 200
+            assert response.json()["published_version_id"]
+
+        for app_id in [private_app.id.root, "missing-app"]:
+            assert (await client.delete(f"/v1/apps/{app_id}")).status_code == 404
+        assert await app.state.v1_dependencies.app_service.read("workspace-other", private_app.id.root)
+        response = await client.delete(f"/v1/apps/{deleted['id']}")
+        assert response.status_code == 200, response.text
+        assert response.json() == {"id": deleted["id"], "deleted": True}
+        assert (await client.delete(f"/v1/apps/{deleted['id']}")).status_code == 404
+        assert (await client.get("/v1/apps")).json()["apps"] == [kept]
+
+    restarted = create_app("local", {"data_dir": tmp_path})
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=restarted), base_url="http://test") as client:
+        assert (await client.get("/v1/apps")).json()["apps"] == [kept]
+        for path in [f"/v1/apps/{deleted['id']}", f"/v1/apps/{deleted['id']}/runs"]:
+            assert (await client.get(path)).status_code == 404
+        for operation, body in [
+            ("runs", {}),
+            ("versions", {"spec": SPEC}),
+            ("source", {"asset_id": "shared-source"}),
+            ("turns", {"message": "Find smoke"}),
+        ]:
+            assert (await client.post(f"/v1/apps/{deleted['id']}/{operation}", json=body)).status_code == 404
+        detail = (await client.get(f"/v1/apps/{kept['id']}")).json()
+        assert detail["source"]["asset_id"] == "shared-source"
+
+
+@pytest.mark.asyncio
 async def test_saved_apps_display_version_titles_including_after_restart(tmp_path: Path):
     app = create_app("local", {"data_dir": tmp_path})
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as client:
