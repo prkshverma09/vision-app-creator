@@ -7,6 +7,9 @@ export type { WorkspacePageProps } from './WorkspacePage'
 export { RunPage } from './RunPage'
 export type { RunPageProps } from './RunPage'
 
+export { UseAppPage } from './UseAppPage'
+export type { UseAppPageProps } from './UseAppPage'
+
 export { navigate, parseHash, routeToHash, useRoute } from './router'
 export type { Route } from './router'
 

@@ -30,12 +30,6 @@ const decisionColor: Record<Event['machine_decision'], string> = {
   candidate: theme.colors.primary,
 }
 
-const reviewColor: Record<Event['human_review'], string> = {
-  unreviewed: theme.colors.secondary,
-  confirmed_by_user: theme.colors.success,
-  dismissed_by_user: theme.colors.danger,
-}
-
 export function EventCard({ event, isSelected, onSelect, compact = false }: EventCardProps) {
   const startS = formatSeconds(event.source_range.start_ms)
   const endS = formatSeconds(event.source_range.end_ms)
@@ -94,7 +88,6 @@ export function EventCard({ event, isSelected, onSelect, compact = false }: Even
           {String(event.facts.description ?? event.facts.object_class ?? 'Detected activity')}
         </p>
         <span style={{ fontSize: 12, color: decisionColor[event.machine_decision] }}>{event.machine_decision === 'inconclusive' ? 'Uncertain' : event.machine_decision === 'rejected' ? 'Not matched' : 'Finding'}</span>
-        {event.human_review !== 'unreviewed' && <span style={{ fontSize: 12, marginLeft: 8 }}>{event.human_review === 'confirmed_by_user' ? 'Confirmed' : 'Dismissed'}</span>}
       </div>
     </li>
   )
@@ -117,12 +110,7 @@ export function EventCard({ event, isSelected, onSelect, compact = false }: Even
     >
       <div style={headerStyle}>
         <span style={idStyle}>{event.id}</span>
-        <span>
-          <span style={badgeStyle(decisionColor[event.machine_decision])}>{event.machine_decision}</span>
-          <span style={badgeStyle(reviewColor[event.human_review])}>
-            {event.human_review === 'confirmed_by_user' ? 'confirmed' : event.human_review === 'dismissed_by_user' ? 'dismissed' : 'unreviewed'}
-          </span>
-        </span>
+        <span style={badgeStyle(decisionColor[event.machine_decision])}>{event.machine_decision}</span>
       </div>
 
       <div style={metaStyle}>Time: {startS} – {endS}</div>

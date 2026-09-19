@@ -139,7 +139,7 @@ describe('RunPage', () => {
 
     expect(await screen.findByText(/run succeeded/i)).toBeInTheDocument()
     expect(screen.getByTestId('event-card-ev-1')).toBeInTheDocument()
-    expect(screen.getByText('Total: 1')).toBeInTheDocument()
+    expect(screen.getByLabelText('Run result')).toBeInTheDocument()
   })
 
   it('shows an error alert when the run cannot be fetched', async () => {
@@ -154,25 +154,14 @@ describe('RunPage', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Run run-1 does not exist.')
   })
 
-  it('selects an event, shows evidence, and submits a review', async () => {
+  it('selects an event and shows its evidence', async () => {
     const user = userEvent.setup()
-    const fetchMock = vi.fn(mockFetchRouter({
-      'GET /v1/runs/run-1': succeededRun,
-      'POST /v1/events/ev-1/review': { ...sampleEvent, human_review: 'confirmed_by_user', revision: 2 },
-    }))
-    vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal('fetch', vi.fn(mockFetchRouter({ 'GET /v1/runs/run-1': succeededRun })))
     render(<RunPage apiClient={apiClient} appId="app-1" runId="run-1" />)
 
     await user.click(await screen.findByTestId('event-card-ev-1'))
     expect(await screen.findByText('clip clip-1')).toBeInTheDocument()
-
-    await user.click(screen.getByRole('button', { name: 'Approve event' }))
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledWith(
-        '/v1/events/ev-1/review',
-        expect.objectContaining({ method: 'POST' }),
-      )
-    })
+    expect(screen.queryByRole('button', { name: /approve|reject/i })).not.toBeInTheDocument()
   })
 
   it('shows a processing status while the run is not finished', async () => {
