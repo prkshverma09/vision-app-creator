@@ -40,7 +40,7 @@ export function CalibrationEditor({ src, sourceWidth, sourceHeight, fps, initial
 
   return <section aria-label="Calibration editor">
     <h2>Confirm scene calibration</h2>
-    <p>Stop line: drag a line or click its two endpoints, in either order. ROI: drag a rectangle or click two diagonal corners. Both save automatically. To replace a shape, draw it again.</p>
+    <p>Draw the stop line and the region or signal it governs.</p>
     <Button type="button" onClick={() => {
       setGeometries([
         { id: 'stop-line', kind: 'line', label: 'stop-line', points: [{ x: 0.5, y: 0.15 }, { x: 0.5, y: 0.85 }] },
@@ -50,7 +50,7 @@ export function CalibrationEditor({ src, sourceWidth, sourceHeight, fps, initial
       setTool('select')
       setConfirmed(false)
     }}>Use sample-video calibration</Button>
-    <p>Only for the bundled red-light sample: places the line and signal box for you. For other footage, draw your own.</p>
+    <p>Bundled red-light sample only.</p>
     <div role="toolbar" aria-label="Geometry tools" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
       {tools.map(({ mode, label }) => <Button key={mode} type="button" variant={tool === mode ? 'primary' : 'secondary'} aria-pressed={tool === mode} onClick={() => setTool(mode)}>{label}</Button>)}
       {!!draft.length && <Button type="button" variant="secondary" onClick={() => setDraft([])}>Cancel drawing</Button>}

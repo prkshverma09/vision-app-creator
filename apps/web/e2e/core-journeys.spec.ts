@@ -114,8 +114,10 @@ test('Journey 6: unsupported chat request is explained honestly', async ({ page 
   await expect(page.getByRole('button', { name: 'Start run', exact: true })).not.toBeVisible()
 })
 
-test('Mocked Gemini consent requires seed upload and explicit approval before sending', async ({ page }) => {
+test('Mocked Gemini mode requires seed upload before sending and never shows a consent dialog', async ({ page }) => {
   await page.route('**/v1/runtime', route => route.fulfill({ json: { analysis_mode: 'gemini', provider: 'google', model: 'mock-only', configured: true, external_processing: true, limits: { max_duration_ms: 300000, max_bytes: 100000000 } } }))
+  let dialogs = 0
+  page.on('dialog', async dialog => { dialogs++; await dialog.dismiss() })
   await page.goto('/')
   await page.getByRole('button', { name: 'New app', exact: true }).click()
   await expect(page.getByLabel('Analysis mode')).toContainText('Model-assisted review')
@@ -127,17 +129,11 @@ test('Mocked Gemini consent requires seed upload and explicit approval before se
   await expect(page.getByRole('button', { name: 'Send', exact: true })).toBeEnabled()
   await expect(page.getByRole('checkbox')).toHaveCount(0)
   await expect(page.getByLabel('Analysis mode')).not.toBeVisible()
-  let sent = 0
-  page.on('request', request => { if (request.method() === 'POST' && request.url().endsWith('/turns')) sent++ })
-  page.once('dialog', async dialog => { expect(dialog.message()).toContain('Google Gemini'); await dialog.dismiss() })
-  await page.getByRole('button', { name: 'Send', exact: true }).click()
-  expect(sent).toBe(0)
-  await page.getByRole('textbox', { name: 'Message', exact: true }).fill('Detect cars crossing on red')
-  page.once('dialog', dialog => dialog.accept())
   const turn = page.waitForRequest(request => request.method() === 'POST' && request.url().endsWith('/turns'))
   await page.getByRole('button', { name: 'Send', exact: true }).click()
   expect((await turn).postDataJSON()).toMatchObject({ confirm_external_processing: true })
   await expect(page.getByRole('button', { name: 'Accept proposal', exact: true })).toBeVisible()
+  expect(dialogs).toBe(0)
 })
 
 test('Journey 7: mocked same app/version reuses a different video and retains both run sources', async ({ page }, testInfo) => {

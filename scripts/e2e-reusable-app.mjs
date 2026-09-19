@@ -70,11 +70,7 @@ export async function runReusableAcceptance(page, options = {}) {
     pending.add(task)
   }
   page.on('response', observe)
-  const confirmDialog = async dialog => {
-    if (dialog.type() === 'confirm' && dialog.message().includes('Google Gemini') && (options.liveApproved || options.mock)) await dialog.accept()
-    else await dialog.dismiss()
-  }
-  page.on('dialog', confirmDialog)
+  page.on('dialog', dialog => { errors.push(`Unexpected dialog: ${dialog.message()}`); void dialog.dismiss() })
   page.on('pageerror', error => errors.push(error.message))
   const guard = async route => {
     const request = route.request()
@@ -258,7 +254,6 @@ export async function runReusableAcceptance(page, options = {}) {
   } finally {
     await Promise.all([...pending])
     page.off('response', observe)
-    page.off('dialog', confirmDialog)
     await page.unroute('**/v1/**', guard)
   }
 }

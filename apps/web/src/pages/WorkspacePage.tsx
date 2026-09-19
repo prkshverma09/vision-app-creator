@@ -62,7 +62,8 @@ export function WorkspacePage({ apiClient, appId, uploader }: WorkspacePageProps
   const [startingRun, setStartingRun] = useState(false)
   const [attachingSource, setAttachingSource] = useState(false)
   const [changingSource, setChangingSource] = useState(false)
-  const [newVideoReady, setNewVideoReady] = useState(false)
+  const [runReady, setRunReady] = useState(false)
+  const [calibrationConfirmed, setCalibrationConfirmed] = useState(false)
   const [runs, setRuns] = useState<RunDetail[]>([])
   const [historyError, setHistoryError] = useState('')
 
@@ -95,7 +96,8 @@ export function WorkspacePage({ apiClient, appId, uploader }: WorkspacePageProps
   }, [apiClient, appId])
 
   useEffect(() => {
-    setNewVideoReady(false)
+    setRunReady(false)
+    setCalibrationConfirmed(false)
     setChangingSource(false)
     setMessages([])
     setOutcome(null)
@@ -105,12 +107,14 @@ export function WorkspacePage({ apiClient, appId, uploader }: WorkspacePageProps
   }, [load, loadHistory])
 
   const live = (runtime?.analysis_mode ?? app?.analysis_mode) === 'gemini'
+  // External-processing consent is assumed: the operator opted in by running in
+  // this mode, so requests always carry the confirmation flag without a dialog.
   const needsConsent = live || runtime?.external_processing === true
   const processingAllowed = !live || runtime?.configured !== false
   const consentBody = needsConsent ? { confirm_external_processing: true } : {}
   const canPrompt = processingAllowed && (!live || Boolean(app?.source)) && !attachingSource
   const chooseRunVideo = () => {
-    setNewVideoReady(false)
+    setRunReady(false)
     setChangingSource(true)
     setActionError('')
   }
@@ -163,9 +167,10 @@ export function WorkspacePage({ apiClient, appId, uploader }: WorkspacePageProps
       const detail = await apiClient.post<AppDetail>(`/v1/apps/${appId}/versions`, { spec: version })
       setApp(detail)
       setOutcome(null)
+      setRunReady(Boolean(detail.published_version_id && detail.source))
       setMessages((current) => [
         ...current,
-        { id: `m-${current.length + 1}`, kind: 'assistant', content: detail.source ? 'Proposal accepted. Your reusable definition is ready.' : 'Proposal accepted. Upload a source video next.' },
+        { id: `m-${current.length + 1}`, kind: 'assistant', content: detail.source ? 'Proposal accepted.' : 'Proposal accepted. Upload a source video next.' },
       ])
     } catch (error) {
       setActionError(messageText(error))
@@ -181,7 +186,8 @@ export function WorkspacePage({ apiClient, appId, uploader }: WorkspacePageProps
       const detail = await apiClient.post<AppDetail>(`/v1/apps/${appId}/source`, { asset_id: source.asset_id })
       setApp({ ...detail, calibration_id: app?.source?.asset_id === source.asset_id ? detail.calibration_id : null })
       setChangingSource(false)
-      setNewVideoReady(Boolean(app?.spec))
+      setCalibrationConfirmed(false)
+      setRunReady(Boolean(app?.spec))
     } catch (error) {
       setActionError(messageText(error))
     } finally {
@@ -198,6 +204,8 @@ export function WorkspacePage({ apiClient, appId, uploader }: WorkspacePageProps
         calibration_id: response.calibration_id,
         published_version_id: current.draft_version_id ?? current.published_version_id,
       } : current)
+      setCalibrationConfirmed(true)
+      setRunReady(true)
     } catch (error) {
       setActionError(messageText(error))
     }
@@ -205,18 +213,23 @@ export function WorkspacePage({ apiClient, appId, uploader }: WorkspacePageProps
 
   const startRun = async (assetId?: string) => {
     if (!processingAllowed || startingRun || attachingSource || changingSource) return
-    if (!assetId && !newVideoReady) { chooseRunVideo(); return }
-    const sourceId = assetId ?? app?.source?.asset_id
-    if (!sourceId) return
+    if (assetId === undefined && !app?.source) return
     setStartingRun(true)
     setActionError('')
     try {
-      const response = await apiClient.post<{ run_id: string }>(`/v1/apps/${appId}/runs`, { ...consentBody, asset_id: sourceId })
+      const response = await apiClient.post<{ run_id: string }>(`/v1/apps/${appId}/runs`, { ...consentBody, ...(assetId ? { asset_id: assetId } : {}) })
       navigate({ name: 'run', appId, runId: response.run_id })
     } catch (error) {
       setActionError(messageText(error))
       setStartingRun(false)
     }
+  }
+
+  // A published app never silently re-runs its previous source: starting a run
+  // first asks for a new video unless one was just attached or calibrated.
+  const onStartRun = () => {
+    if (app?.published_version_id && !runReady) { chooseRunVideo(); return }
+    void startRun()
   }
 
   if (loadError) {
@@ -238,6 +251,7 @@ export function WorkspacePage({ apiClient, appId, uploader }: WorkspacePageProps
   const currentIndex = steps.indexOf(stage)
   const source = app.source
   const runDisabled = startingRun || !processingAllowed || attachingSource || changingSource
+  const seedRunnable = app.seed_asset_id && (app.spec?.kind === 'semantic_windows' || app.seed_asset_id === source?.asset_id)
 
   return (
     <div>
@@ -248,11 +262,10 @@ export function WorkspacePage({ apiClient, appId, uploader }: WorkspacePageProps
         <summary style={{ cursor: 'pointer' }}>Details</summary>
         <p aria-label="Analysis mode">{live ? 'Gemini · Model-assisted review' : 'Scripted · Synthetic demo · NOT actual detection'}</p>
         {runtime && <p>Provider: {runtime.provider ?? 'None'} · Model: {runtime.model ?? 'None'} · Video limit: {runtime.limits.max_duration_ms / 1000} seconds, {runtime.limits.max_bytes / 1_000_000} MB</p>}
-        {live && <p>Processing uses Google Gemini. API charges apply.</p>}
         <p>Published version: {app.published_version_id ?? 'Not published yet'}</p>
-        {source && <p>Current source: {source.asset_id}{source.asset_id === app.seed_asset_id ? ' (seed video)' : ''}</p>}
         {app.seed_asset_id && <p>Seed video: {app.seed_asset_id}</p>}
       </details>
+      {source && !changingSource && <p>Current source: {source.asset_id}{source.asset_id === app.seed_asset_id ? ' (seed video)' : ''}</p>}
       {live && runtime?.configured === false && <p role="alert">Model processing is not configured on the server.</p>}
 
       {!app.published_version_id && <ol aria-label="Builder steps" style={stepsStyle}>
@@ -273,20 +286,17 @@ export function WorkspacePage({ apiClient, appId, uploader }: WorkspacePageProps
 
       <div style={gridStyle}>
         <section aria-label="Builder chat" style={panelStyle}>
-          {stage === 'chat' && <ChatThread messages={messages} />}
+          {messages.length > 0 && <ChatThread messages={messages} />}
           {outcome && stage === 'chat' && (
             <fieldset disabled={pending || !canPrompt} style={{ border: 0, padding: 0 }}>
               <BuildTurnOutcome outcome={outcome} onClarify={submitClarification} onAccept={acceptProposal} onEditPrompt={async (text) => { await sendMessage(text) }} />
             </fieldset>
           )}
           {stage === 'chat' ? (
-            <>
-              <p>Upload an example and describe your app.</p>
-              <ChatInput onSubmit={sendMessage} pending={pending} submitDisabled={!canPrompt} />
-            </>
+            <ChatInput onSubmit={sendMessage} pending={pending} submitDisabled={!canPrompt} />
           ) : app.spec && (
             <section aria-label="Reusable app definition">
-              <h3>App definition</h3>
+              <h3>{app.spec.title}</h3>
               <p>{app.spec.objective}</p>
               <details><summary>Conditions</summary>
               <ul>{app.spec.kind === 'semantic_windows'
@@ -299,25 +309,22 @@ export function WorkspacePage({ apiClient, appId, uploader }: WorkspacePageProps
 
         <section aria-label="Source and calibration" style={panelStyle}>
           {changingSource && <h3>Upload a new video</h3>}
-          {source?.playback_url && !changingSource && (newVideoReady || stage === 'chat') && <VideoPlayer src={source.playback_url} ariaLabel="Current source video" />}
+          {source?.playback_url && !changingSource && <VideoPlayer src={source.playback_url} ariaLabel="Current source video" />}
           {(!source || changingSource) && (
             <UploadPanel apiClient={apiClient} uploader={uploader} onReady={onSourceReady} maxBytes={runtime?.limits.max_bytes} />
           )}
           {attachingSource && <p role="status">Attaching source…</p>}
-          {app.spec && !changingSource && !newVideoReady && <Button type="button" disabled={!processingAllowed || pending} onClick={chooseRunVideo}>Run app</Button>}
-          {source && newVideoReady && !changingSource && <Button type="button" variant="secondary" disabled={startingRun} onClick={chooseRunVideo}>Change video</Button>}
+          {app.spec && stage === 'run' && !changingSource && <Button type="button" disabled={!processingAllowed || pending} onClick={chooseRunVideo}>Analyze a new video</Button>}
           {changingSource && source && <Button type="button" variant="secondary" disabled={attachingSource} onClick={() => setChangingSource(false)}>Cancel</Button>}
           {stage === 'calibration' && source && !changingSource && (
-            <>
-              <p>Calibrate this video.</p>
-              <CalibrationEditor key={source.asset_id} src={source.playback_url ?? ''} sourceWidth={source.width ?? 640} sourceHeight={source.height ?? 360} onConfirm={onConfirmCalibration} />
-            </>
+            <CalibrationEditor key={source.asset_id} src={source.playback_url ?? ''} sourceWidth={source.width ?? 640} sourceHeight={source.height ?? 360} onConfirm={onConfirmCalibration} />
           )}
-          {stage === 'run' && newVideoReady && <Button type="button" onClick={() => void startRun()} disabled={runDisabled}>{startingRun ? 'Analyzing…' : 'Analyze video'}</Button>}
-          {stage === 'run' && source && !newVideoReady && !changingSource && <details style={{ marginTop: theme.spacing.md }}>
+          {calibrationConfirmed && <p role="status">Source ready and calibration confirmed.</p>}
+          {stage === 'run' && <Button type="button" onClick={onStartRun} disabled={runDisabled}>{startingRun ? 'Analyzing…' : 'Start run'}</Button>}
+          {stage === 'run' && seedRunnable && !changingSource && <details style={{ marginTop: theme.spacing.md }}>
             <summary>Example video</summary>
-            {source.playback_url && (!app.seed_asset_id || source.asset_id === app.seed_asset_id) && <VideoPlayer src={source.playback_url} ariaLabel="Example video" />}
-            {(app.spec?.kind === 'semantic_windows' || !app.seed_asset_id || app.seed_asset_id === source.asset_id) && <Button type="button" variant="secondary" onClick={() => void startRun(app.seed_asset_id ?? source.asset_id)} disabled={runDisabled}>Test seed video</Button>}
+            {app.seed_asset_id === source?.asset_id && source?.playback_url && <VideoPlayer src={source.playback_url} ariaLabel="Example video" />}
+            <Button type="button" variant="secondary" onClick={() => void startRun(app.seed_asset_id ?? undefined)} disabled={runDisabled}>Run on seed video</Button>
           </details>}
         </section>
 
@@ -333,6 +340,7 @@ export function WorkspacePage({ apiClient, appId, uploader }: WorkspacePageProps
               </li>
             ))}</ul>
           )}
+          {app.spec && stage === 'run' && !changingSource && <Button type="button" onClick={chooseRunVideo} disabled={!processingAllowed || pending || startingRun}>Run app</Button>}
           <Button type="button" variant="secondary" onClick={() => void loadHistory()}>Refresh history</Button>
         </section>
       </div>
