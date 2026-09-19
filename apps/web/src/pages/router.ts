@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react'
 export type Route =
   | { name: 'apps' }
   | { name: 'workspace'; appId: string }
+  | { name: 'use'; appId: string }
   | { name: 'run'; appId: string; runId: string }
 
 export function parseHash(hash: string): Route {
@@ -21,6 +22,9 @@ export function parseHash(hash: string): Route {
     const appId = decodeURIComponent(segments[1])
     if (segments[2] === 'run' && segments[3]) {
       return { name: 'run', appId, runId: decodeURIComponent(segments[3]) }
+    }
+    if (segments[2] === 'use') {
+      return { name: 'use', appId }
     }
     return { name: 'workspace', appId }
   }
@@ -31,6 +35,8 @@ export function routeToHash(route: Route): string {
   switch (route.name) {
     case 'workspace':
       return `#/app/${encodeURIComponent(route.appId)}`
+    case 'use':
+      return `#/app/${encodeURIComponent(route.appId)}/use`
     case 'run':
       return `#/app/${encodeURIComponent(route.appId)}/run/${encodeURIComponent(route.runId)}`
     default:

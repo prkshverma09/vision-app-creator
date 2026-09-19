@@ -21,6 +21,10 @@ describe('parseHash', () => {
     })
   })
 
+  it('maps use hashes to the use-app route', () => {
+    expect(parseHash('#/app/app-1/use')).toEqual({ name: 'use', appId: 'app-1' })
+  })
+
   it('decodes URI-encoded identifiers', () => {
     expect(parseHash('#/app/my%20app/run/run%2F1')).toEqual({
       name: 'run',
@@ -40,6 +44,7 @@ describe('routeToHash', () => {
     const routes = [
       { name: 'apps' },
       { name: 'workspace', appId: 'app-1' },
+      { name: 'use', appId: 'app-1' },
       { name: 'run', appId: 'app-1', runId: 'run-2' },
     ] as const
     for (const route of routes) {

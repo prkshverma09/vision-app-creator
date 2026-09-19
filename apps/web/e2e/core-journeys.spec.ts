@@ -41,25 +41,15 @@ async function uploadSource(page: Page) {
 
 async function calibrate(page: Page) {
   await uploadSource(page)
-  const canvas = page.getByLabel('Calibration drawing canvas')
-  await page.getByRole('button', { name: 'Draw stop line' }).click()
-  await canvas.click({ position: { x: 70, y: 90 } })
-  await canvas.click({ position: { x: 250, y: 90 } })
-  await page.getByRole('button', { name: 'Draw ROI' }).click()
-  await canvas.click({ position: { x: 60, y: 40 } })
-  await canvas.click({ position: { x: 260, y: 40 } })
-  await canvas.click({ position: { x: 260, y: 150 } })
-  const box = await canvas.boundingBox()
-  if (!box) throw new Error('Calibration canvas has no layout box')
-  await canvas.dispatchEvent('dblclick', { clientX: box.x + 60, clientY: box.y + 150 })
-  await expect(page.getByRole('button', { name: 'Confirm calibration' })).toBeEnabled()
   await page.getByRole('button', { name: 'Confirm calibration' }).click()
   await expect(page.getByText('Source ready and calibration confirmed.')).toBeVisible()
 }
 
 async function runAndSelectEvent(page: Page) {
   await calibrate(page)
-  await page.getByRole('button', { name: 'Start run' }).click()
+  await page.getByRole('button', { name: 'Run app' }).click()
+  await expect(page).toHaveURL(/#\/app\/app-e2e\/use$/)
+  await page.getByRole('button', { name: 'Run app' }).click()
   await expect(page.getByText('Run succeeded', { exact: true })).toBeVisible()
   await expect(page.getByRole('note')).toContainText('100% of fixture processed')
   const card = page.getByTestId('event-card-event-e2e')
@@ -93,14 +83,13 @@ test('Journey 4: start run, observe progress, and inspect event evidence', async
   await verifyAllMedia(page, { media: [] }, 'run-evidence', true)
 })
 
-test('Journey 5: approve supported event and see a safe dry-run action payload', async ({ page }) => {
+test('Journey 5: run page shows the finding result and evidence without review UI', async ({ page }) => {
   await runAndSelectEvent(page)
-  await page.getByRole('button', { name: 'Approve event' }).click()
+  await expect(page.getByLabel('Run result')).toContainText('finding')
   const card = page.getByTestId('event-card-event-e2e')
-  await expect(card).toContainText('confirmed')
-  await expect(card).toContainText('dry-run only; no external request sent')
   await expect(card).toContainText('event-e2e')
   await expect(card).toContainText('supported')
+  await expect(page.getByRole('button', { name: /approve|reject|mark unknown/i })).toHaveCount(0)
 })
 
 test('Journey 6: unsupported chat request is explained honestly', async ({ page }) => {

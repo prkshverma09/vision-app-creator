@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { createApiClient } from './client'
-import { AppListPage, RunPage, WorkspacePage, useRoute } from './pages'
+import { AppListPage, RunPage, UseAppPage, WorkspacePage, useRoute } from './pages'
 import { ErrorBoundary, Shell } from './ui'
 
 function AppRoutes() {
@@ -10,6 +10,8 @@ function AppRoutes() {
   switch (route.name) {
     case 'workspace':
       return <WorkspacePage apiClient={apiClient} appId={route.appId} />
+    case 'use':
+      return <UseAppPage apiClient={apiClient} appId={route.appId} />
     case 'run':
       return <RunPage apiClient={apiClient} appId={route.appId} runId={route.runId} />
     default:

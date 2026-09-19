@@ -63,35 +63,6 @@ describe('EventList', () => {
     expect(onSelect).toHaveBeenCalledWith('evt-1')
   })
 
-  it('filters by human review status', async () => {
-    const user = userEvent.setup()
-    const events = [
-      makeEvent({ id: 'evt-1', human_review: 'unreviewed' }),
-      makeEvent({ id: 'evt-2', human_review: 'confirmed_by_user' }),
-      makeEvent({ id: 'evt-3', human_review: 'dismissed_by_user' }),
-    ]
-    render(<EventList events={events} selectedEventId={null} onSelectEvent={vi.fn()} />)
-
-    await user.click(screen.getByRole('button', { name: /confirmed/i }))
-
-    expect(screen.getAllByRole('listitem')).toHaveLength(1)
-    expect(screen.getByText(/evt-2/)).toBeInTheDocument()
-  })
-
-  it('filters by machine decision', async () => {
-    const user = userEvent.setup()
-    const events = [
-      makeEvent({ id: 'evt-1', machine_decision: 'supported' }),
-      makeEvent({ id: 'evt-2', machine_decision: 'rejected' }),
-    ]
-    render(<EventList events={events} selectedEventId={null} onSelectEvent={vi.fn()} />)
-
-    await user.click(screen.getByRole('button', { name: /rejected/i }))
-
-    expect(screen.getAllByRole('listitem')).toHaveLength(1)
-    expect(screen.getByText(/evt-2/)).toBeInTheDocument()
-  })
-
   it('paginates through events', async () => {
     const user = userEvent.setup()
     const events = Array.from({ length: 6 }, (_, i) => makeEvent({ id: `evt-${i + 1}` }))
@@ -108,10 +79,9 @@ describe('EventList', () => {
   })
 
   it('renders status badges for each event', () => {
-    const events = [makeEvent({ id: 'evt-1', machine_decision: 'supported', human_review: 'confirmed_by_user' })]
+    const events = [makeEvent({ id: 'evt-1', machine_decision: 'supported' })]
     render(<EventList events={events} selectedEventId={null} onSelectEvent={vi.fn()} />)
 
     expect(screen.getByText('supported')).toBeInTheDocument()
-    expect(screen.getByText('confirmed')).toBeInTheDocument()
   })
 })

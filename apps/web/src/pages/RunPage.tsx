@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Event, ReviewRequest } from '@vision-app/contracts'
+import type { Event } from '@vision-app/contracts'
 import type { ApiClient } from '../client'
-import { EventList, EvidenceViewer, ReviewPanel } from '../features/results'
+import { EventList, EvidenceViewer } from '../features/results'
 import { VideoPlayer } from '../features/video'
 import { Button, Loading, theme } from '../ui'
 import type { RunResponse } from './types'
@@ -87,19 +87,6 @@ export function RunPage({ apiClient, appId, runId }: RunPageProps) {
     setSelectedEventId(event.id)
   }
 
-  const submitReview = async (eventId: string, review: ReviewRequest) => {
-    setActionError('')
-    try {
-      const updated = await apiClient.post<Event>(`/v1/events/${eventId}/review`, review)
-      setData((current) => current && ({
-        ...current,
-        events: current.events.map((event) => (event.id === updated.id ? updated : event)),
-      }))
-    } catch (error) {
-      setActionError(messageText(error))
-    }
-  }
-
   if (loadError) {
     return (
       <div role="alert">
@@ -145,7 +132,7 @@ export function RunPage({ apiClient, appId, runId }: RunPageProps) {
   return (
     <div>
       <p>
-        <a href={`#/app/${encodeURIComponent(appId)}`}>← Workspace</a>
+        <a href={`#/app/${encodeURIComponent(appId)}/use`}>← App</a>
       </p>
       <h2>Run {run.id}</h2>
       <p role="status">Run {run.status}</p>
@@ -231,13 +218,9 @@ export function RunPage({ apiClient, appId, runId }: RunPageProps) {
           {selectedEvent ? (
             <>
               <EvidenceViewer evidence={selectedEvent.evidence} onSeekToSourceTime={seekToSourceTime} />
-              <ReviewPanel
-                event={selectedEvent}
-                onReview={(review) => void submitReview(selectedEvent.id, review)}
-              />
             </>
           ) : (
-            <p>Select an event to inspect evidence and review.</p>
+            <p>Select an event to inspect its evidence.</p>
           )}
         </section>
 
