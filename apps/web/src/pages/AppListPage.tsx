@@ -25,12 +25,20 @@ const itemStyle: React.CSSProperties = {
   borderRadius: theme.radii.md,
   padding: theme.spacing.md,
   backgroundColor: theme.colors.surface,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  flexWrap: 'wrap',
+  gap: theme.spacing.sm,
 }
 
 export function AppListPage({ apiClient }: AppListPageProps) {
   const [apps, setApps] = useState<AppSummary[] | null>(null)
   const [error, setError] = useState('')
   const [creating, setCreating] = useState(false)
+  const [confirmingId, setConfirmingId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [deleteError, setDeleteError] = useState('')
 
   const load = useCallback(async () => {
     setError('')
@@ -58,6 +66,20 @@ export function AppListPage({ apiClient }: AppListPageProps) {
     }
   }
 
+  const deleteApp = async (appId: string) => {
+    setDeletingId(appId)
+    setDeleteError('')
+    try {
+      await apiClient.delete(`/v1/apps/${encodeURIComponent(appId)}`)
+      setApps((current) => current?.filter((app) => app.id !== appId) ?? null)
+      setConfirmingId(null)
+    } catch (caught) {
+      setDeleteError(messageText(caught))
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   return (
     <div>
       <h2>Your apps</h2>
@@ -74,6 +96,25 @@ export function AppListPage({ apiClient }: AppListPageProps) {
           {apps.map((app) => (
             <li key={app.id} style={itemStyle}>
               <a href={`#/app/${encodeURIComponent(app.id)}`}>{app.name}</a>
+              {confirmingId === app.id ? (
+                <div>
+                  <span>Delete this app? </span>
+                  <Button type="button" variant="secondary" disabled={deletingId !== null} onClick={() => setConfirmingId(null)}>
+                    Cancel
+                  </Button>{' '}
+                  <Button type="button" variant="danger" aria-label={`Confirm delete ${app.name}`} disabled={deletingId !== null} onClick={() => void deleteApp(app.id)}>
+                    {deletingId === app.id ? 'Deleting…' : 'Delete'}
+                  </Button>
+                  {deleteError && <p role="alert">{deleteError}</p>}
+                </div>
+              ) : (
+                <Button type="button" variant="secondary" aria-label={`Delete ${app.name}`} disabled={deletingId !== null} onClick={() => {
+                  setDeleteError('')
+                  setConfirmingId(app.id)
+                }}>
+                  Delete
+                </Button>
+              )}
             </li>
           ))}
         </ul>

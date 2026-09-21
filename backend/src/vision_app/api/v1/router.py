@@ -408,6 +408,15 @@ def create_v1_router(deps: V1Dependencies) -> APIRouter:
         await deps.authorization.app(principal, app_id)
         return await _app_detail(app_id, principal)
 
+    @router.delete("/apps/{app_id}")
+    async def delete_app(
+        app_id: str, principal: Principal = Depends(_require_principal)
+    ) -> JSONResponse:
+        await deps.authorization.app(principal, app_id)
+        if not await deps.core_repo.delete_owned("vision_app", app_id, principal):
+            raise PublicSecurityError(404, "resource_not_found", "App not found.")
+        return JSONResponse(content={"id": app_id, "deleted": True})
+
     # --- builder turns ---
 
     @router.post("/apps/{app_id}/turns")

@@ -45,9 +45,10 @@ createServer(async (req, res) => {
   }
   if (url.pathname === `/v1/apps/${app.id}/versions` && req.method === 'POST') { app.spec = (await body(req)).spec; return json(res, app) }
   if (url.pathname === '/v1/uploads' && req.method === 'POST') {
+    const { filename } = await body(req)
     const index = assets.size + 1
     const id = index === 1 ? 'asset-e2e' : `asset-e2e-${index}`
-    assets.set(id, { asset_id: id, status: 'ready', duration_ms: 5000, width: 320, height: 180, playback_url: `/fixture-${index}.webm` })
+    assets.set(id, { asset_id: id, status: 'ready', duration_ms: 5000, width: 320, height: 180, filename, playback_url: `/fixture-${index}.webm` })
     return json(res, { upload_id: id, upload_url: `/v1/upload-bytes/${id}` })
   }
   if (url.pathname.startsWith('/v1/upload-bytes/') && req.method === 'PUT') { for await (const _ of req) { /* consume fixture */ } res.writeHead(204); return res.end() }
@@ -67,7 +68,7 @@ createServer(async (req, res) => {
     const source = assets.get(input.asset_id ?? app.source.asset_id)
     const id = runs.size === 0 ? 'run-e2e' : `run-e2e-${runs.size + 1}`
     const run = { id, app_id: app.id, status: 'queued', asset_id: source.asset_id, version_id: app.published_version_id, calibration_id: app.calibration_id, is_seed_run: source.asset_id === app.seed_asset_id, analysis_mode: 'scripted', source: { ...source }, playback_url: source.playback_url, coverage_note: '100% of fixture processed; mocked contract responses, not live accuracy' }
-    runs.set(id, { run, events: run.is_seed_run ? [{ ...structuredClone(event), run_id: id, calibration_id: app.calibration_id }] : [] })
+    runs.set(id, { run, events: source.filename === 'green_light_crossing.mp4' ? [] : [{ ...structuredClone(event), run_id: id, calibration_id: app.calibration_id }] })
     polls.set(id, 0)
     return json(res, { run_id: id }, 202)
   }
@@ -83,7 +84,8 @@ createServer(async (req, res) => {
   if (url.pathname === '/v1/events/event-e2e/review' && req.method === 'POST') { const review = await body(req); const result = runs.get('run-e2e').events[0]; result.human_review = review.human_review; if (review.human_review === 'confirmed_by_user') result.facts = { ...result.facts, action_preview: 'dry-run only; no external request sent', safe_payload: '{"event_id":"event-e2e","decision":"supported"}' }; return json(res, result) }
   if (url.pathname === '/api/v1/media/thumb-e2e') { res.writeHead(200, { 'content-type': 'image/svg+xml' }); return res.end('<svg xmlns="http://www.w3.org/2000/svg" width="120" height="68"><rect width="120" height="68" fill="#22d3ee"/></svg>') }
   if (/^\/fixture-\d+\.webm$/.test(url.pathname) || url.pathname === '/api/v1/media/clip-e2e') {
-    const filename = url.pathname === '/fixture-2.webm' ? 'green_light_crossing.mp4' : 'red_light_violation.mp4'
+    const source = [...assets.values()].find(asset => asset.playback_url === url.pathname)
+    const filename = source?.filename === 'green_light_crossing.mp4' ? 'green_light_crossing.mp4' : 'red_light_violation.mp4'
     if (!videos.has(filename)) {
       const target = join(videoDir, `${filename}.webm`)
       const result = spawnSync('ffmpeg', ['-nostdin', '-hide_banner', '-loglevel', 'error', '-y', '-i', join(fixtureRoot, filename), '-an', '-c:v', 'libvpx', '-f', 'webm', target], { timeout: 30000 })

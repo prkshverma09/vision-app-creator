@@ -59,7 +59,7 @@ class InMemoryRepository:
         """
         async with self._lock:
             found = self._find_doc(kind, resource_id)
-            if found is None:
+            if found is None or found[1].deleted:
                 return None
             return found[0]
 
@@ -190,6 +190,21 @@ class InMemoryRepository:
             return True
 
     # ------------------------------------------------------------------ generic ownership helpers
+    async def delete_owned(
+        self, kind: str, resource_id: str, principal: Principal
+    ) -> bool:
+        async with self._lock:
+            found = self._find_doc(kind, resource_id)
+            if found is None:
+                return False
+            workspace_id, doc = found
+            if not principal.is_member(workspace_id) or doc.deleted:
+                return False
+            doc.deleted = True
+            doc.revision += 1
+            doc.generation += 1
+            return True
+
     async def list_owned(self, kind: str, principal: Any) -> list[Any]:
         principal = self._coerce_principal(principal)
         async with self._lock:
